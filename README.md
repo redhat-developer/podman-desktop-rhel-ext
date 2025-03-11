@@ -4,7 +4,7 @@ The Macadam extension is a POC to show how macadam tool can be used to init/star
 
 ## Pre-requisites
 
-- Build macadam binary from sources (https://github.com/crc-org/podman-desktop-extension-macadam), and install it, so it is accessible in PATH (do not rename it to `macadam`, keep the name as `macadam-${osName}-${arch}`).
+- Build macadam binary from sources (https://github.com/crc-org/macadam), and install it, so it is accessible in PATH (keep the name as `macadam-${osName}-${arch}`).
 - Configure containers (`~/.config/containers/containers.conf`) to use default machine provider (not libkrun).
 - Install latest versions of `vfkit` (main branch) and `gvproxy` (v0.8.4) in a directory, and export the environment variable `CONTAINERS_HELPER_BINARY_DIR` with the name of the directory containing these executables.
 
