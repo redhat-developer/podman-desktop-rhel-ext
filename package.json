@@ -18,14 +18,14 @@
           "type": "string",
           "format": "file",
           "scope": "ContainerProviderConnectionFactory",
-          "default": "/Users/luca/.crc/machines/crc/crc_test.img",
+          "default": "",
           "description": "Image Path"
         },
         "macadam.factory.machine.ssh-identity-path": {
           "type": "string",
           "format": "file",
           "scope": "ContainerProviderConnectionFactory",
-          "default": "/Users/luca/.crc/machines/crc/id_ecdsa",
+          "default": "",
           "description": "Ssh Identity Path"
         },
         "macadam.factory.machine.cpus": {
