@@ -1,0 +1,84 @@
+#
+# Copyright (C) 2025 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: build-extension
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: "latest"
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Set extension image name
+      if: github.event_name == 'pull_request' 
+      run: echo "VERSION=pr-${{ github.event.number }}" >> $GITHUB_ENV
+
+    - name: Build extension
+      env:
+        IMG: ghcr.io/crc-org/podman-desktop-extension-macadam
+      shell: bash
+      run: |
+        podman build -t ${IMG}:${VERSION} -f oci/Containerfile.multistage .
+        podman save -m -o podman-desktop-extension-macadam.tar ${IMG}:${VERSION}
+        echo "${IMG}:${VERSION}" > podman-desktop-extension-macadam.image
+
+    - name: Upload extension oci flatten images
+      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+      with:
+        name: podman-desktop-extension-macadam
+        path: podman-desktop-extension-macadam*
+
+  push:
+    name: push
+    if: github.event_name == 'push' 
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - name: Download extension oci flatten images
+      uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+      with:
+        name: podman-desktop-extension-macadam
+      
+    - name: Log in to ghcr.io
+      uses: redhat-actions/podman-login@4934294ad0449894bcd1e9f191899d7292469603 # v1.7
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push image for Release
+      shell: bash
+      run: |
+        podman load -i podman-desktop-extension-macadam.tar
+        podman push ghcr.io/crc-org/podman-desktop-extension-macadam:latest
+
+ 
+      
+
