@@ -15,7 +15,7 @@ Want to help develop and contribute to the Macadam extension?
 
 You can use pnpm watch --extension-folder from the Podman Desktop directory to automatically rebuild and test the Macadam extension:
 
-Note: make sure you have the appropriate [pre-requisits](https://github.com/podman-desktop/podman-desktop/blob/main/CONTRIBUTING.md#prerequisites-prepare-your-environment) installed.
+Note: make sure you have the appropriate [pre-requisites](https://github.com/podman-desktop/podman-desktop/blob/main/CONTRIBUTING.md#prerequisites-prepare-your-environment) installed.
 
 ```
 git clone https://github.com/containers/podman-desktop
