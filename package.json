@@ -1,0 +1,113 @@
+{
+  "name": "macadam",
+  "displayName": "Macadam",
+  "description": "Integration for macadam: a tool to create/start linux VM on any OS",
+  "version": "0.0.1",
+  "icon": "icon.png",
+  "license": "Apache-2.0",
+  "publisher": "redhat",
+  "engines": {
+    "podman-desktop": ">=1.10.0"
+  },
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Macadam",
+      "properties": {
+        "macadam.factory.machine.image-path": {
+          "type": "string",
+          "format": "file",
+          "scope": "ContainerProviderConnectionFactory",
+          "default": "",
+          "description": "Image Path"
+        },
+        "macadam.factory.machine.ssh-identity-path": {
+          "type": "string",
+          "format": "file",
+          "scope": "ContainerProviderConnectionFactory",
+          "default": "",
+          "description": "Ssh Identity Path"
+        },
+        "macadam.factory.machine.cpus": {
+          "type": "number",
+          "format": "cpu",
+          "default": "HOST_HALF_CPU_CORES",
+          "minimum": 1,
+          "maximum": "HOST_TOTAL_CPU",
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "CPU(s)"
+        },
+        "macadam.factory.machine.memory": {
+          "type": "number",
+          "format": "memory",
+          "minimum": 1000000000,
+          "default": 4000000000,
+          "maximum": "HOST_TOTAL_MEMORY",
+          "scope": "ContainerProviderConnectionFactory",
+          "step": 500000000,
+          "description": "Memory"
+        },
+        "macadam.factory.machine.diskSize": {
+          "type": "number",
+          "format": "diskSize",
+          "default": 100000000000,
+          "minimum": 10000000000,
+          "maximum": "HOST_TOTAL_DISKSIZE",
+          "step": 500000000,
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Disk size"
+        },
+        "macadam.factory.machine.win.provider": {
+          "type": "string",
+          "default": "wsl",
+          "enum": ["wsl", "hyperv"],
+          "scope": "ContainerProviderConnectionFactory",
+          "description": "Provider Type",
+          "when": "macadam.wslHypervEnabled"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch --coverage",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format:fix": "prettier --write \"src/**/*.ts\"",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck:backend": "tsc --noEmit",
+    "watch": "vite build -w"
+  },
+  "dependencies": {
+    "@podman-desktop/api": "^1.16.0",
+    "compare-versions": "^6.1.1",
+    "semver": "^7.6.0",
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.2.5",
+    "@types/node": "^20",
+    "@types/ssh2": "^1.15.4",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "globals": "^15.14.0",
+    "electron": "^34.0.0",
+    "eslint": "^9.18.0",
+    "eslint-import-resolver-custom-alias": "^1.3.2",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-etc": "^2.0.3",
+    "eslint-plugin-file-progress": "^3.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-redundant-undefined": "^1.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-sonarjs": "^3.0.1",
+    "eslint-plugin-unicorn": "^56.0.1",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
