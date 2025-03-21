@@ -104,7 +104,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'pnpm'
 
       - name: Execute pnpm
@@ -119,7 +119,7 @@ jobs:
       - name: Publish Image
         id: publish-image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-RHEL
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/podman-desktop-rhel-ext
           IMAGE_WITH_TAG=${IMAGE_NAME}:${{ steps.TAG_UTIL.outputs.RHELExtensionVersion }}
           IMAGE_LATEST=${IMAGE_NAME}:latest
           podman build -t $IMAGE_WITH_TAG .
