@@ -119,32 +119,32 @@ async function timeout(time: number): Promise<void> {
 }
 
 async function getJSONMachineList(): Promise<MachineJSONListOutput> {
-  const containerMachineProviders: (string | undefined)[] = [];
+  const vmMachineProviders: (string | undefined)[] = [];
   let hypervEnabled = false;
   if (await isWSLEnabled()) {
     wslEnabled = true;
-    containerMachineProviders.push('wsl');
+    vmMachineProviders.push('wsl');
   } else {
     wslEnabled = false;
   }
 
   if (await isHyperVEnabled()) {
     hypervEnabled = true;
-    containerMachineProviders.push('hyperv');
+    vmMachineProviders.push('hyperv');
   }
   // update context "wsl-hyperv enabled" value
   updateWSLHyperVEnabledContextValue(wslEnabled && hypervEnabled);
 
-  if (containerMachineProviders.length === 0) {
-    // in all other cases we set undefined so that it executes normally by using the default container provider
-    containerMachineProviders.push(undefined);
+  if (vmMachineProviders.length === 0) {
+    // in all other cases we set undefined so that it executes normally by using the default vm provider
+    vmMachineProviders.push(undefined);
   }
   
   const list: MachineJSON[] = [];
   let error = '';
 
   try {
-    for (const provider of containerMachineProviders) {
+    for (const provider of vmMachineProviders) {
       const machineListOutput = await getJSONMachineListByProvider(provider);
       list.push(...machineListOutput.list);
       if (machineListOutput.error && machineListOutput.error.trim() !== '') {
@@ -158,8 +158,8 @@ async function getJSONMachineList(): Promise<MachineJSONListOutput> {
   return { list, error };
 }
 
-export async function getJSONMachineListByProvider(containerMachineProvider?: string): Promise<MachineJSONListOutput> {
-  const { stdout, stderr } = await execMacadam(['list'], containerMachineProvider);
+export async function getJSONMachineListByProvider(vmMachineProvider?: string): Promise<MachineJSONListOutput> {
+  const { stdout, stderr } = await execMacadam(['list'], vmMachineProvider);
   return { 
     list: stdout ? JSON.parse(stdout) as MachineJSON[] : [], 
     error: stderr ,
@@ -242,30 +242,23 @@ async function registerProviderFor(
   const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
   context.subscriptions.push(providerConnectionShellAccess);
 
-  // we are not really working with a containerProviderConnection of type podman
-  // however it offers most of the things we would need, so it is good for a POC
-  const containerProviderConnection: extensionApi.ContainerProviderConnection = {
+  const vmProviderConnection: extensionApi.VmProviderConnection = {
     name: 'macadam',
-    displayName: 'Macadam',
-    type: 'podman',
     status: () => macadamMachinesStatuses.get(machineInfo.image) ?? 'unknown',
     shellAccess: providerConnectionShellAccess,
     lifecycle,
-    endpoint: {
-      socketPath: 'no-socket',
-    },
   };
 
-  const disposable = provider.registerContainerProviderConnection(containerProviderConnection);
+  const disposable = provider.registerVmProviderConnection(vmProviderConnection);
   provider.updateStatus('ready');
 
   // get configuration for this connection
-  const containerConfiguration = extensionApi.configuration.getConfiguration('macadam', containerProviderConnection);
+  const vmConfiguration = extensionApi.configuration.getConfiguration('macadam', vmProviderConnection);
 
   // Set values for the machine
-  await containerConfiguration.update('machine.cpus', machineInfo.cpus);
-  await containerConfiguration.update('machine.memory', machineInfo.memory);
-  await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
+  await vmConfiguration.update('machine.cpus', machineInfo.cpus);
+  await vmConfiguration.update('machine.memory', machineInfo.memory);
+  await vmConfiguration.update('machine.diskSize', machineInfo.diskSize);
 
   currentConnections.set(machineInfo.image, disposable);
   /*storedExtensionContext?.subscriptions.push(disposable); */
@@ -433,7 +426,7 @@ async function createProvider(
   extensionContext.subscriptions.push(provider);
 
   // enable factory
-  provider.setContainerProviderConnectionFactory({
+  provider.setVmProviderConnectionFactory({
     create: (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: { [key: string]: any },
