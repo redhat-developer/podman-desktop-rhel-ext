@@ -34,3 +34,14 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 20
+    groups:
+      eslint:
+        applies-to: version-updates
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+      typescript-eslint:
+        applies-to: version-updates
+        patterns:
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
