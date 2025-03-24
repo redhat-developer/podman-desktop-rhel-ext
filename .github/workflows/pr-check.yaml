@@ -33,6 +33,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 10
           run_install: false
 
       - uses: actions/setup-node@v4
@@ -58,6 +59,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 10
           run_install: false
 
       - uses: actions/setup-node@v4
@@ -69,7 +71,7 @@ jobs:
         run: pnpm install
 
       - name: Run typecheck
-        run: pnpm typecheck
+        run: pnpm typecheck:backend
 
   unit-tests:
     name: unit tests / ${{ matrix.os }}
@@ -84,6 +86,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
+          version: 10
           run_install: false
 
       - uses: actions/setup-node@v4
@@ -95,4 +98,4 @@ jobs:
         run: pnpm install
 
       - name: Run unit tests
-        run: pnpm test:unit
+        run: pnpm test
