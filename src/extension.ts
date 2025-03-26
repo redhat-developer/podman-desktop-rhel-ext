@@ -17,6 +17,8 @@
  ***********************************************************************/
 
 
+import { dirname } from 'node:path';
+
 import * as extensionApi from '@podman-desktop/api';
 
 import { LoggerDelegator } from './logger';
@@ -177,8 +179,13 @@ async function startMachine(
   const startTime = performance.now();
 
   try {
+    const containersHelperBinaryDir = dirname((await macadam.getBinaryInfo()).path);
     await execMacadam(['start'], machineInfo.vmType, {
       logger: new LoggerDelegator(context, logger),
+      env: {
+        // we consider vfkit and gvproxy are installed in the same dir as macadam
+        'CONTAINERS_HELPER_BINARY_DIR': containersHelperBinaryDir,
+      },
     });
     provider.updateStatus('started');
   } catch (err) {
@@ -492,9 +499,13 @@ async function createVM(
 
   const startTime = performance.now();
   try {
+    const containersHelperBinaryDir = dirname((await macadam.getBinaryInfo()).path);
     await execMacadam(parameters, provider, {
       logger,
       token,
+      env: {
+        'CONTAINERS_HELPER_BINARY_DIR': containersHelperBinaryDir,
+      },
     });
   } catch (error) {
     telemetryRecords.error = error;
