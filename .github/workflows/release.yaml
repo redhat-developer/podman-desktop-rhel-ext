@@ -95,7 +95,7 @@ jobs:
           gh pr merge "${pullRequestUrl}" --auto --rebase
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" package.json
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
