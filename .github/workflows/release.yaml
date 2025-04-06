@@ -38,6 +38,10 @@ env:
 jobs:
   tag:
     runs-on: ubuntu-24.04
+    outputs:
+      githubTag: ${{ steps.TAG_UTIL.outputs.githubTag}}
+      RHELExtensionVersion: ${{ steps.TAG_UTIL.outputs.RHELExtensionVersion}}
+
     steps:
       - uses: actions/checkout@v4
         with:
