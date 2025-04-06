@@ -17,63 +17,91 @@
 
 name: main-build
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches:
       - 'main'
 
 jobs:
-  build:
+  builder-image:
+    name: Build and publish builder OCI image
     runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: build builder image
+        id: builder-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          version: 10
-          run_install: false
+          image: podman-desktop-rhel-ext-builder
+          tags: next ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: |
+            build/Containerfile.builder
+          context: .
+          oci: true
 
-      - uses: actions/setup-node@v4
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
         with:
-          node-version: 22
-          cache: 'pnpm'
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Execute pnpm
-        run: pnpm install --frozen-lockfile
+      - name: publish builder to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.builder-image.outputs.image }}
+          tags: ${{ steps.builder-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+  
+  extension-image:
+    name: Build and publish extension OCI image
+    runs-on: ubuntu-24.04
+    needs: builder-image
 
-      - name: Run Build
-        run: pnpm build
+    steps:
+      - uses: actions/checkout@v4
 
-      # uncomment after adding a Containerfile to this repository
-      # - name: Install qemu dependency
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y qemu-user-static
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
-      # - name: build builder image
-      #   id: builder-image
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     image: podman-desktop-rhel-ext
-      #     tags: next ${{ github.sha }}
-      #     platforms: linux/amd64, linux/arm64
-      #     containerfiles: |
-      #       Containerfile
-      #     context: .
-      #     oci: true
+      - name: build extension image
+        id: extension-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: podman-desktop-rhel-ext
+          tags: next ${{ github.sha }}
+          archs: amd64, arm64
+          containerfiles: |
+            build/Containerfile
+          context: .
+          oci: true
 
-      # - name: Login to ghcr.io
-      #   uses: redhat-actions/podman-login@v1
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }} 
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
 
-      # - name: publish builder to ghcr.io
-      #   id: push-to-ghcr
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.builder-image.outputs.image }}
-      #     tags: ${{ steps.builder-image.outputs.tags }}
-      #     registry: ghcr.io/${{ github.repository_owner }}
+      - name: publish extension to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.extension-image.outputs.image }}
+          tags: ${{ steps.extension-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}

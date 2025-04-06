@@ -17,6 +17,11 @@
 
 name: release
 
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -31,7 +36,7 @@ env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
-  build:
+  tag:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -96,53 +101,85 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" package.json
         env:
           GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+  
+  builder-image:
+    name: Build and publish builder OCI image
+    needs: tag
+    runs-on: ubuntu-24.04
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+    steps:
+      - uses: actions/checkout@v4
         with:
-          version: 10
-          run_install: false
+          ref: ${{ needs.tag.outputs.githubTag }}
 
-      - uses: actions/setup-node@v4
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: build builder image
+        id: builder-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          node-version: 22
-          cache: 'pnpm'
+          image: podman-desktop-rhel-ext-builder
+          tags: latest next ${{ needs.tag.outputs.RHELExtensionVersion }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: |
+            build/Containerfile.builder
+          context: .
+          oci: true
 
-      - name: Execute pnpm
-        run: pnpm install --frozen-lockfile
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Build
-        run: pnpm build
+      - name: publish builder to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.builder-image.outputs.image }}
+          tags: ${{ steps.builder-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
 
-      # uncomment after adding a Containerfile to this repository
-      # - name: Install qemu dependency
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y qemu-user-static
+  extension-image:
+    name: Build and publish extension OCI image
+    runs-on: ubuntu-24.04
+    needs: [builder-image, tag]
 
-      # - name: build builder image
-      #   id: builder-image
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     image: podman-desktop-rhel-ext
-      #     tags: latest ${{ steps.TAG_UTIL.outputs.RHELExtensionVersion }}
-      #     platforms: linux/amd64, linux/arm64
-      #     containerfiles: |
-      #       Containerfile
-      #     context: .
-      #     oci: true
+    steps:
+      - uses: actions/checkout@v4
 
-      # - name: Login to ghcr.io
-      #   uses: redhat-actions/podman-login@v1
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }} 
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
-      # - name: publish builder to ghcr.io
-      #   id: push-to-ghcr
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.builder-image.outputs.image }}
-      #     tags: ${{ steps.builder-image.outputs.tags }}
-      #     registry: ghcr.io/${{ github.repository_owner }}
+      - name: build extension image
+        id: extension-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: podman-desktop-rhel-ext
+          tags: latest ${{ needs.tag.outputs.RHELExtensionVersion }}
+          archs: amd64, arm64
+          containerfiles: |
+            build/Containerfile
+          context: .
+          oci: true
+
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+
+      - name: publish extension to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.extension-image.outputs.image }}
+          tags: ${{ steps.extension-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
