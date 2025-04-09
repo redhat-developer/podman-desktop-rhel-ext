@@ -17,27 +17,28 @@
  ***********************************************************************/
 
 import * as extensionApi from '@podman-desktop/api';
+
 import { SequenceCheck } from '../base-check';
-import { WSL2Check, WSLVersionCheck } from './wsl-helper';
-import { getPowerShellClient } from './powershell';
 import { HyperVCheck } from './hyperv-helper';
+import { getPowerShellClient } from './powershell';
+import { WSL2Check, WSLVersionCheck } from './wsl-helper';
 
 export async function isWSLEnabled(): Promise<boolean> {
-    if (!extensionApi.env.isWindows) {
-      return false;
-    }
-    const wslCheck = new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check()]);
-    const wslCheckResult = await wslCheck.execute();
-    return wslCheckResult.successful;
+  if (!extensionApi.env.isWindows) {
+    return false;
+  }
+  const wslCheck = new SequenceCheck('WSL platform', [new WSLVersionCheck(), new WSL2Check()]);
+  const wslCheckResult = await wslCheck.execute();
+  return wslCheckResult.successful;
 }
-  
+
 export async function isHyperVEnabled(): Promise<boolean> {
-    if (!extensionApi.env.isWindows) {
-      return false;
-    }
-    const hyperVCheck = new HyperVCheck();
-    const hyperVCheckResult = await hyperVCheck.execute();
-    return hyperVCheckResult.successful;
+  if (!extensionApi.env.isWindows) {
+    return false;
+  }
+  const hyperVCheck = new HyperVCheck();
+  const hyperVCheckResult = await hyperVCheck.execute();
+  return hyperVCheckResult.successful;
 }
 
 export async function isUserAdmin(): Promise<boolean> {
@@ -48,5 +49,4 @@ export async function isUserAdmin(): Promise<boolean> {
 export async function isPodmanDesktopElevated(): Promise<boolean> {
   const client = await getPowerShellClient();
   return client.isRunningElevated();
-}  
-  
+}

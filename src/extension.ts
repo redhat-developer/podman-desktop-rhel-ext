@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-
 import * as extensionApi from '@podman-desktop/api';
 
 import { LoggerDelegator } from './logger';
@@ -139,7 +138,7 @@ async function getJSONMachineList(): Promise<MachineJSONListOutput> {
     // in all other cases we set undefined so that it executes normally by using the default container provider
     containerMachineProviders.push(undefined);
   }
-  
+
   const list: MachineJSON[] = [];
   let error = '';
 
@@ -149,7 +148,7 @@ async function getJSONMachineList(): Promise<MachineJSONListOutput> {
       list.push(...machineListOutput.list);
       if (machineListOutput.error && machineListOutput.error.trim() !== '') {
         error += machineListOutput.error + '\n';
-      }      
+      }
     }
   } catch (err) {
     error = getErrorMessage(err);
@@ -160,9 +159,9 @@ async function getJSONMachineList(): Promise<MachineJSONListOutput> {
 
 export async function getJSONMachineListByProvider(containerMachineProvider?: string): Promise<MachineJSONListOutput> {
   const { stdout, stderr } = await execMacadam(['list'], containerMachineProvider);
-  return { 
-    list: stdout ? JSON.parse(stdout) as MachineJSON[] : [], 
-    error: stderr ,
+  return {
+    list: stdout ? (JSON.parse(stdout) as MachineJSON[]) : [],
+    error: stderr,
   };
 }
 
@@ -271,10 +270,7 @@ async function registerProviderFor(
   /*storedExtensionContext?.subscriptions.push(disposable); */
 }
 
-async function updateMachines(
-  provider: extensionApi.Provider,
-  context: extensionApi.ExtensionContext,
-): Promise<void> {
+async function updateMachines(provider: extensionApi.Provider, context: extensionApi.ExtensionContext): Promise<void> {
   // init machines available
   const machineListOutput = await getJSONMachineList();
 
@@ -338,11 +334,7 @@ async function updateMachines(
     connectionsToCreate.map(async machineName => {
       const podmanMachineInfo = macadamMachinesInfo.get(machineName);
       if (podmanMachineInfo) {
-        await registerProviderFor(
-          provider,
-          podmanMachineInfo,
-          context,
-        );
+        await registerProviderFor(provider, podmanMachineInfo, context);
       }
     }),
   );
@@ -393,10 +385,7 @@ async function updateMachines(
   }
 }
 
-async function monitorMachines(
-  provider: extensionApi.Provider,
-  context: extensionApi.ExtensionContext,
-): Promise<void> {
+async function monitorMachines(provider: extensionApi.Provider, context: extensionApi.ExtensionContext): Promise<void> {
   // call us again
   if (!stopLoop) {
     try {
@@ -411,9 +400,7 @@ async function monitorMachines(
   }
 }
 
-async function createProvider(
-  extensionContext: extensionApi.ExtensionContext,
-): Promise<extensionApi.Provider> {
+async function createProvider(extensionContext: extensionApi.ExtensionContext): Promise<extensionApi.Provider> {
   const providerOptions: extensionApi.ProviderOptions = {
     name: 'Macadam',
     id: 'macadam',
@@ -444,7 +431,6 @@ async function createProvider(
     },
     creationDisplayName: 'Virtual machine',
   });
-  
 
   return provider;
 }
@@ -492,7 +478,7 @@ async function createVM(
     parameters.push('--ssh-identity-path');
     parameters.push(sshIdentityPath);
   }
-  
+
   // push args for demo
   parameters.push('--username');
   parameters.push('core');

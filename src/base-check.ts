@@ -18,56 +18,56 @@
 import type * as extensionApi from '@podman-desktop/api';
 
 export interface FailureObject {
-    description: string;
-    docLinksDescription?: string;
-    docLinks?: extensionApi.CheckResultLink;
-    fixCommand?: extensionApi.CheckResultFixCommand;
+  description: string;
+  docLinksDescription?: string;
+  docLinks?: extensionApi.CheckResultLink;
+  fixCommand?: extensionApi.CheckResultFixCommand;
 }
 
 export abstract class BaseCheck implements extensionApi.InstallCheck {
-    abstract title: string;
-    abstract execute(): Promise<extensionApi.CheckResult>;
-  
-    protected createFailureResult(failureObject: FailureObject): extensionApi.CheckResult {
-      const result: extensionApi.CheckResult = { successful: false, description: failureObject.description };
-      if (failureObject.docLinksDescription) {
-        result.docLinksDescription = failureObject.docLinksDescription;
-      }
-      if (failureObject.docLinks) {
-        result.docLinks = [{ url: failureObject.docLinks.url, title: failureObject.docLinks.title }];
-      }
-      if (failureObject.fixCommand) {
-        result.fixCommand = {
-          id: failureObject.fixCommand.id,
-          title: failureObject.fixCommand.title,
-        };
-      }
-      return result;
+  abstract title: string;
+  abstract execute(): Promise<extensionApi.CheckResult>;
+
+  protected createFailureResult(failureObject: FailureObject): extensionApi.CheckResult {
+    const result: extensionApi.CheckResult = { successful: false, description: failureObject.description };
+    if (failureObject.docLinksDescription) {
+      result.docLinksDescription = failureObject.docLinksDescription;
     }
-  
-    protected createSuccessfulResult(): extensionApi.CheckResult {
-      return { successful: true };
+    if (failureObject.docLinks) {
+      result.docLinks = [{ url: failureObject.docLinks.url, title: failureObject.docLinks.title }];
     }
+    if (failureObject.fixCommand) {
+      result.fixCommand = {
+        id: failureObject.fixCommand.id,
+        title: failureObject.fixCommand.title,
+      };
+    }
+    return result;
+  }
+
+  protected createSuccessfulResult(): extensionApi.CheckResult {
+    return { successful: true };
+  }
 }
 
 export class SequenceCheck extends BaseCheck {
-    title: string;
-  
-    constructor(
-      title: string,
-      private checks: BaseCheck[],
-    ) {
-      super();
-      this.title = title;
-    }
-  
-    async execute(): Promise<extensionApi.CheckResult> {
-      for (const check of this.checks) {
-        const result = await check.execute();
-        if (!result.successful) {
-          return result;
-        }
+  title: string;
+
+  constructor(
+    title: string,
+    private checks: BaseCheck[],
+  ) {
+    super();
+    this.title = title;
+  }
+
+  async execute(): Promise<extensionApi.CheckResult> {
+    for (const check of this.checks) {
+      const result = await check.execute();
+      if (!result.successful) {
+        return result;
       }
-      return this.createSuccessfulResult();
     }
+    return this.createSuccessfulResult();
+  }
 }
