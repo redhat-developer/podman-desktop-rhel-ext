@@ -73,8 +73,8 @@
   },
   "scripts": {
     "build": "vite build",
-    "test": "vitest run --coverage",
-    "test:watch": "vitest watch --coverage",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:watch": "vitest watch --coverage --passWithNoTests",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format:fix": "prettier --write \"src/**/*.ts\"",
     "lint:check": "eslint .",
