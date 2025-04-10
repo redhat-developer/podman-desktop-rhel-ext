@@ -267,7 +267,6 @@ async function registerProviderFor(
   await containerConfiguration.update('machine.diskSize', machineInfo.diskSize);
 
   currentConnections.set(machineInfo.image, disposable);
-  /*storedExtensionContext?.subscriptions.push(disposable); */
 }
 
 async function updateMachines(provider: extensionApi.Provider, context: extensionApi.ExtensionContext): Promise<void> {
