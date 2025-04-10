@@ -16,10 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
+import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { existsSync } from 'node:fs';
+
+import * as extensionApi from '@podman-desktop/api';
+
 import { macadam } from './extension';
 
 const localBinDir = '/usr/local/bin';
@@ -49,7 +51,7 @@ export function getSystemBinaryPath(binaryName: string): string {
 
 /**
  * Given an executable name, it will find where it is installed on the system.
- * It first try to search it in the system-wide folder, then in the extension storage  
+ * It first try to search it in the system-wide folder, then in the extension storage
  * @param executable
  */
 export async function whereBinary(storagePath: string, binaryName: string): Promise<string> {
@@ -63,7 +65,7 @@ export async function whereBinary(storagePath: string, binaryName: string): Prom
     return macadamStoragePath;
   }
 
-  // if it's not installed either in the extension storage path or system wide throw an error 
+  // if it's not installed either in the extension storage path or system wide throw an error
   throw new Error('no macadam binary found');
 }
 
