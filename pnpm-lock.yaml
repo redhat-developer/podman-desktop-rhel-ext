@@ -15,8 +15,8 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1
       semver:
-        specifier: ^7.6.0
-        version: 7.6.3
+        specifier: ^7.7.1
+        version: 7.7.1
       ssh2:
         specifier: ^1.16.0
         version: 1.16.0
@@ -1099,9 +1099,6 @@ packages:
 
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
-
-  '@types/estree@1.0.6':
-    resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
@@ -4397,8 +4394,6 @@ snapshots:
       '@types/node': 20.17.14
       '@types/responselike': 1.0.3
 
-  '@types/estree@1.0.6': {}
-
   '@types/estree@1.0.7': {}
 
   '@types/http-cache-semantics@4.0.4': {}
@@ -4583,7 +4578,7 @@ snapshots:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.3(typescript@5.7.3)
     optionalDependencies:
       typescript: 5.7.3
@@ -4598,7 +4593,7 @@ snapshots:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.3(typescript@5.7.3)
     optionalDependencies:
       typescript: 5.7.3
@@ -4643,7 +4638,7 @@ snapshots:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.7.3)
       eslint: 9.24.0(jiti@1.21.7)
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -5426,7 +5421,7 @@ snapshots:
       read-pkg-up: 7.0.1
       regexp-tree: 0.1.27
       regjsparser: 0.10.0
-      semver: 7.6.3
+      semver: 7.7.1
       strip-indent: 3.0.0
 
   eslint-scope@5.1.1:
@@ -5674,7 +5669,7 @@ snapshots:
       es6-error: 4.1.1
       matcher: 3.0.0
       roarr: 2.15.4
-      semver: 7.6.3
+      semver: 7.7.1
       serialize-error: 7.0.1
     optional: true
 
@@ -6063,7 +6058,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   matcher@3.0.0:
     dependencies:
