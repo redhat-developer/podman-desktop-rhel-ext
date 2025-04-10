@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@podman-desktop/api':
-        specifier: ^1.16.0
-        version: 1.16.0
+        specifier: ^1.17.2
+        version: 1.17.2
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
@@ -970,8 +970,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@podman-desktop/api@1.16.0':
-    resolution: {integrity: sha512-ZgSN3oJkwzoz2oMBO77EA+7rugt7R7kL6JmVtq5siXrRqj2Nn9tj0KYMv/jzz9KhlaHI2/ELN0qLWLNFuvxu0Q==}
+  '@podman-desktop/api@1.17.2':
+    resolution: {integrity: sha512-tk4yEuZkNdVQ3NOqGQ8eDMduG/mR3ZUQmlAZbUbi+s839jqpSdzchTM9brj1LQmWSkJdnyP1Yp0q4u2jJsD4ew==}
 
   '@rollup/rollup-android-arm-eabi@4.39.0':
     resolution: {integrity: sha512-lGVys55Qb00Wvh8DMAocp5kIcaNzEFTmGhfFd88LfaogYTRKrdxgtlO5H6S49v2Nd8R2C6wLOal0qv6/kCkOwA==}
@@ -4296,7 +4296,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@podman-desktop/api@1.16.0': {}
+  '@podman-desktop/api@1.17.2': {}
 
   '@rollup/rollup-android-arm-eabi@4.39.0':
     optional: true
