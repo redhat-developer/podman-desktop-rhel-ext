@@ -80,9 +80,7 @@ export class Macadam {
    */
   async getInstalledVersion(executable?: string): Promise<string> {
     // if the executable is not an absolute path we search for it
-    if (!executable) {
-      executable = await whereBinary(this.storagePath, this.getExecutableName());
-    }
+    executable ??= await whereBinary(this.storagePath, this.getExecutableName());
 
     const { stdout } = await extensionApi.process.exec(executable, ['--version']);
     const macadamExecName = this.getExecutableName();
