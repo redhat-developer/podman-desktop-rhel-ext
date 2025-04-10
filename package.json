@@ -85,7 +85,7 @@
   "dependencies": {
     "@podman-desktop/api": "^1.17.2",
     "compare-versions": "^6.1.1",
-    "semver": "^7.6.0",
+    "semver": "^7.7.1",
     "ssh2": "^1.16.0"
   },
   "devDependencies": {
