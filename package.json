@@ -83,7 +83,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
-    "@podman-desktop/api": "^1.17.2",
+    "@podman-desktop/api": "1.18.0-202504081837-802a404223c",
     "compare-versions": "^6.1.1",
     "semver": "^7.7.1",
     "ssh2": "^1.16.0"
