@@ -159,9 +159,9 @@ async function getJSONMachineList(): Promise<MachineJSONListOutput> {
 
 export async function getJSONMachineListByProvider(vmProvider?: string): Promise<MachineJSONListOutput> {
   const { stdout, stderr } = await execMacadam(['list'], vmProvider);
-  return { 
-    list: stdout ? JSON.parse(stdout) as MachineJSON[] : [], 
-    error: stderr ,
+  return {
+    list: stdout ? (JSON.parse(stdout) as MachineJSON[]) : [],
+    error: stderr,
   };
 }
 
