@@ -70,7 +70,7 @@ export class Macadam {
     return {
       version,
       path: executable,
-      installationSource: normalize(executable) === normalize(systemPath) ? 'extension' : 'external',
+      installationSource: normalize(executable) !== normalize(systemPath) ? 'extension' : 'external',
     };
   }
 
