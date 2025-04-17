@@ -20,8 +20,8 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-import * as extensionApi from '@podman-desktop/api';
 import * as macadamJSPackage from '@crc-org/macadam.js';
+import * as extensionApi from '@podman-desktop/api';
 
 import { macadam } from './extension';
 
