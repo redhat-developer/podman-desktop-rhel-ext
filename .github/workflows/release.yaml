@@ -121,6 +121,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
+      - name: add macadam package authentication
+        run: |
+          echo @crc-org:registry=https://npm.pkg.github.com >> ./.npmrc
+          echo //npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}} >> ./.npmrc
+
       - name: build builder image
         id: builder-image
         uses: redhat-actions/buildah-build@v2
