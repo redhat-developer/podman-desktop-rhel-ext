@@ -40,6 +40,11 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+      
+      - name: add macadam package authentication
+        run: |
+          echo @crc-org:registry=https://npm.pkg.github.com >> ./.npmrc
+          echo //npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}} >> ./.npmrc
 
       - name: Execute pnpm
         run: pnpm install --frozen-lockfile
@@ -67,6 +72,11 @@ jobs:
           node-version: 22
           cache: 'pnpm'
 
+      - name: add macadam package authentication
+        run: |
+          echo @crc-org:registry=https://npm.pkg.github.com >> ./.npmrc
+          echo //npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}} >> ./.npmrc
+          
       - name: Execute pnpm
         run: pnpm install
 
@@ -93,6 +103,11 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+      
+      - name: add macadam package authentication
+        run: |
+          echo @crc-org:registry=https://npm.pkg.github.com >> ./.npmrc
+          echo //npm.pkg.github.com/:_authToken=${{secrets.GITHUB_TOKEN}} >> ./.npmrc
 
       - name: Execute pnpm
         run: pnpm install

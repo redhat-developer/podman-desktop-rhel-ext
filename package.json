@@ -83,6 +83,7 @@
     "watch": "vite build -w"
   },
   "dependencies": {
+    "@crc-org/macadam.js": "0.0.1-202504180956-af4279b",
     "@podman-desktop/api": "1.18.0",
     "compare-versions": "^6.1.1",
     "semver": "^7.7.1",
