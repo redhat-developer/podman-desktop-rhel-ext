@@ -87,8 +87,7 @@
     "@podman-desktop/api": "1.18.0",
     "compare-versions": "^6.1.1",
     "semver": "^7.7.1",
-    "ssh2": "^1.16.0",
-    "@crc-org/macadam.js": "0.0.1-202504080814-844309e"
+    "ssh2": "^1.16.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.8",
