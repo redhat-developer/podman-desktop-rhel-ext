@@ -24,7 +24,7 @@ permissions:
 on:
   push:
     branches:
-      - 'main'
+      - 'update-workflows-test'
 
 jobs:
   builder-image:

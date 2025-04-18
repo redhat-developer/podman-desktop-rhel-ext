@@ -23,6 +23,8 @@ permissions:
   pull-requests: write
 
 on:
+  pull_request:
+    types: [labeled]
   workflow_dispatch:
     inputs:
       version:
