@@ -20,7 +20,6 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
 import { macadam } from './extension';
@@ -64,11 +63,6 @@ export async function whereBinary(storagePath: string, binaryName: string): Prom
   const macadamStoragePath = resolve(storagePath, 'bin', binaryName);
   if (existsSync(macadamStoragePath)) {
     return macadamStoragePath;
-  }
-
-  const macadamPackagePath = await macadamJSPackage.getMacadamPath();
-  if (existsSync(macadamPackagePath)) {
-    return macadamPackagePath;
   }
 
   // if it's not installed either in the extension storage path or system wide throw an error

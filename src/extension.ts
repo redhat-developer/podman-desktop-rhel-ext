@@ -16,12 +16,12 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
 import { LoggerDelegator } from './logger';
-import { Macadam } from './macadam';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
-import { execMacadam, getErrorMessage } from './utils';
+import { getErrorMessage } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
@@ -74,20 +74,13 @@ type MachineJSONListOutput = {
   error: string;
 };
 
-export let macadam: Macadam;
+export let macadam: macadamJSPackage.Macadam;
 
 export const macadamMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  macadam = new Macadam(extensionContext.storagePath);
-
-  let binary: BinaryInfo | undefined = undefined;
-  // retrieve macadam
-  try {
-    binary = await macadam.getBinaryInfo();
-  } catch (err: unknown) {
-    console.error(err);
-  }
+  macadam = new macadamJSPackage.Macadam('RHEL extension');
+  await macadam.init();
 
   const provider = await createProvider(extensionContext);
 
@@ -101,11 +94,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     images: {
       icon: './icon.png',
     },
-    version: binary?.version,
-    path: binary?.path,
     displayName: MACADAM_DISPLAY_NAME,
     markdownDescription: MACADAM_MARKDOWN,
-    installationSource: binary?.installationSource,
   });
 
   extensionContext.subscriptions.push(macadamCli);
@@ -158,9 +148,15 @@ async function getJSONMachineList(): Promise<MachineJSONListOutput> {
 }
 
 export async function getJSONMachineListByProvider(vmProvider?: string): Promise<MachineJSONListOutput> {
-  const { stdout, stderr } = await execMacadam(['list'], vmProvider);
+  let stdout: macadamJSPackage.VmDetails[] = [];
+  let stderr = '';
+  try {
+    stdout = await macadam.listVms({ containerProvider: vmProvider });
+  } catch (err: unknown) {
+    stderr = `${err}`;
+  }
   return {
-    list: stdout ? (JSON.parse(stdout) as MachineJSON[]) : [],
+    list: stdout,
     error: stderr,
   };
 }
@@ -176,8 +172,9 @@ async function startMachine(
   const startTime = performance.now();
 
   try {
-    await execMacadam(['start'], machineInfo.vmType, {
-      logger: new LoggerDelegator(context, logger),
+    await macadam.startVm({
+      containerProvider: machineInfo.vmType,
+      runOptions: { logger: new LoggerDelegator(context, logger) },
     });
     provider.updateStatus('started');
   } catch (err) {
@@ -203,8 +200,9 @@ async function stopMachine(
   const telemetryRecords: Record<string, unknown> = {};
   telemetryRecords.provider = 'macadam';
   try {
-    await execMacadam(['stop'], machineInfo.vmType, {
-      logger: new LoggerDelegator(context, logger),
+    await macadam.stopVm({
+      containerProvider: machineInfo.vmType,
+      runOptions: { logger: new LoggerDelegator(context, logger) },
     });
     provider.updateStatus('stopped');
   } catch (err: unknown) {
@@ -232,9 +230,7 @@ async function registerProviderFor(
       await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
-      await execMacadam(['rm', '-f'], machineInfo.vmType, {
-        logger,
-      });
+      await macadam.removeVm({ containerProvider: machineInfo.vmType, runOptions: { logger } });
     },
   };
 
@@ -432,9 +428,6 @@ async function createVM(
   logger?: extensionApi.Logger,
   token?: extensionApi.CancellationToken,
 ): Promise<void> {
-  const parameters = [];
-  parameters.push('init');
-
   const telemetryRecords: Record<string, unknown> = {};
   if (extensionApi.env.isMac) {
     telemetryRecords.OS = 'mac';
@@ -442,7 +435,7 @@ async function createVM(
     telemetryRecords.OS = 'win';
   }
 
-  let provider: string | undefined;
+  let provider: 'wsl' | 'hyperv' | 'applehv' | undefined;
   if (params['macadam.factory.machine.win.provider']) {
     provider = params['macadam.factory.machine.win.provider'];
     telemetryRecords.provider = provider;
@@ -459,26 +452,20 @@ async function createVM(
   // image-path
   const imagePath = params['macadam.factory.machine.image-path'];
   if (imagePath) {
-    parameters.push(imagePath);
     telemetryRecords.imagePath = 'custom';
   }
 
   // ssh identity path
   const sshIdentityPath = params['macadam.factory.machine.ssh-identity-path'];
-  if (sshIdentityPath) {
-    parameters.push('--ssh-identity-path');
-    parameters.push(sshIdentityPath);
-  }
-
-  // push args for demo
-  parameters.push('--username');
-  parameters.push('core');
 
   const startTime = performance.now();
   try {
-    await execMacadam(parameters, provider, {
-      logger,
-      token,
+    await macadam.createVm({
+      imagePath: imagePath,
+      sshIdentityPath: sshIdentityPath,
+      username: 'core',
+      containerProvider: provider,
+      runOptions: { logger, token },
     });
   } catch (error) {
     telemetryRecords.error = error;
