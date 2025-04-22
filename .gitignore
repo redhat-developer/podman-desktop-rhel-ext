@@ -6,3 +6,5 @@ dist
 .idea
 .vscode
 /.npmrc
+output
+test-results
