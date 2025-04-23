@@ -21,7 +21,7 @@ import * as extensionApi from '@podman-desktop/api';
 
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
-import { getErrorMessage } from './utils';
+import { getErrorMessage, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
@@ -151,7 +151,7 @@ export async function getJSONMachineListByProvider(vmProvider?: string): Promise
   let stdout: macadamJSPackage.VmDetails[] = [];
   let stderr = '';
   try {
-    stdout = await macadam.listVms({ containerProvider: vmProvider });
+    stdout = await macadam.listVms({ containerProvider: verifyContainerProivder(vmProvider ?? '') });
   } catch (err: unknown) {
     stderr = `${err}`;
   }
@@ -173,7 +173,7 @@ async function startMachine(
 
   try {
     await macadam.startVm({
-      containerProvider: machineInfo.vmType,
+      containerProvider: verifyContainerProivder(machineInfo.vmType),
       runOptions: { logger: new LoggerDelegator(context, logger) },
     });
     provider.updateStatus('started');
@@ -201,7 +201,7 @@ async function stopMachine(
   telemetryRecords.provider = 'macadam';
   try {
     await macadam.stopVm({
-      containerProvider: machineInfo.vmType,
+      containerProvider: verifyContainerProivder(machineInfo.vmType),
       runOptions: { logger: new LoggerDelegator(context, logger) },
     });
     provider.updateStatus('stopped');
@@ -230,7 +230,7 @@ async function registerProviderFor(
       await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
-      await macadam.removeVm({ containerProvider: machineInfo.vmType, runOptions: { logger } });
+      await macadam.removeVm({ containerProvider: verifyContainerProivder(machineInfo.vmType), runOptions: { logger } });
     },
   };
 

@@ -78,7 +78,8 @@ export function getErrorMessage(err: unknown): string {
   return '';
 }
 
-export async function execMacadam(
+/* 
+  export async function execMacadam(
   args: string[],
   containersProvider?: string,
   options?: extensionApi.RunOptions,
@@ -94,4 +95,13 @@ export async function execMacadam(
   }
 
   return extensionApi.process.exec(macadamCli, args, finalOptions);
+}
+  */
+
+export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyperv' | 'applehv'| undefined {
+  if (containerProvider === 'wsl' || containerProvider === 'hyperv' || containerProvider === 'applehv') {
+    return containerProvider;
+  } else {
+    return undefined;
+  }
 }
