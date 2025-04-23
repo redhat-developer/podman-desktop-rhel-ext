@@ -230,7 +230,10 @@ async function registerProviderFor(
       await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
-      await macadam.removeVm({ containerProvider: verifyContainerProivder(machineInfo.vmType), runOptions: { logger } });
+      await macadam.removeVm({
+        containerProvider: verifyContainerProivder(machineInfo.vmType),
+        runOptions: { logger },
+      });
     },
   };
 
