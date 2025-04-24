@@ -71,7 +71,8 @@
     }
   },
   "scripts": {
-    "build": "vite build",
+    "generate:subscription-v1": "npx openapi-typescript src/rh-api/subscription-schema-v1.json -o src/rh-api/gen/subscription-v1.d.ts",
+    "build": "pnpm generate:subscription-v1 && vite build",
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest watch --coverage --passWithNoTests",
     "format:check": "prettier --check \"src/**/*.ts\"",
@@ -86,6 +87,7 @@
     "@crc-org/macadam.js": "0.0.1-202504301306-5ade487",
     "@podman-desktop/api": "1.18.0",
     "compare-versions": "^6.1.1",
+    "openapi-fetch": "^0.13.5",
     "semver": "^7.7.1",
     "ssh2": "^1.16.0"
   },
@@ -116,5 +118,6 @@
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.2",
     "vitest": "^3.1.1"
-  }
+  },
+  "packageManager": "pnpm@10.6.2+sha512.47870716bea1572b53df34ad8647b42962bc790ce2bf4562ba0f643237d7302a3d6a8ecef9e4bdfc01d23af1969aa90485d4cebb0b9638fa5ef1daef656f6c1b"
 }
