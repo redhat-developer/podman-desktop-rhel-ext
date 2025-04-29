@@ -37,12 +37,13 @@ export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyp
 }
 
 export async function pullImageFromRedHatRegistry(imageSha: string) {
-  const redirectToImage = await rhsmClientV1.images.downloadImageUsingSha('1351d19fddb169ed01dc8815e9318027d27d7fe8c80e1844559ccd9c041ad9ca');
+  const redirectToImage = await rhsmClientV1?.images?.downloadImageUsingSha('07e968a75124c0dfa203ff48c678fdab43a17f688a1d9da46e96d4d849a36a59');
 
-  console.log('Redirected =>', redirectToImage.data);
-
-  console.log('Redirected =>', redirectToImage.data);
-  const output = fs.createWriteStream('/Users/eskimo/Temp/file-name.iso');
+  if (redirectToImage) {
+    console.log('Redirected =>', redirectToImage.data);
+    console.log('Redirected =>', redirectToImage.data);
+  }
+  const output = fs.createWriteStream('/Users/sonia_sandler/Desktop/imagetestfetch');
   const stream = new WritableStream({
     write(chunk) {
       output.write(chunk);

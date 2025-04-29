@@ -19,9 +19,11 @@
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
+import { initAuthentication } from './authentication';
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
-import { getErrorMessage, verifyContainerProivder } from './utils';
+import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
+import { getErrorMessage, pullImageFromRedHatRegistry, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
@@ -38,6 +40,7 @@ let wslEnabled = false;
 const WSL_HYPERV_ENABLED_KEY = 'macadam.wslHypervEnabled';
 
 const listeners = new Set<StatusHandler>();
+export let rhsmClientV1: SubscriptionManagerClientV1 | undefined = undefined;
 
 export interface BinaryInfo {
   path: string;
@@ -101,6 +104,10 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 
   extensionContext.subscriptions.push(macadamCli);
+  console.log(rhsmClientV1);
+  rhsmClientV1  = await initAuthentication();
+  console.log(rhsmClientV1);
+  await pullImageFromRedHatRegistry('');
 }
 
 async function timeout(time: number): Promise<void> {
