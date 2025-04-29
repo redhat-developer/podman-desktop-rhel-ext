@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import { rhsmClientV1 } from "./authentication";
+
 export function getErrorMessage(err: unknown): string {
   if (err && typeof err === 'object' && 'message' in err) {
     return String(err.message);
@@ -31,4 +34,20 @@ export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyp
   } else {
     return undefined;
   }
+}
+
+export async function pullImageFromRedHatRegistry(imageSha: string) {
+  const redirectToImage = await rhsmClientV1.images.downloadImageUsingSha('1351d19fddb169ed01dc8815e9318027d27d7fe8c80e1844559ccd9c041ad9ca');
+
+  console.log('Redirected =>', redirectToImage.data);
+
+  console.log('Redirected =>', redirectToImage.data);
+  const output = fs.createWriteStream('/Users/eskimo/Temp/file-name.iso');
+  const stream = new WritableStream({
+    write(chunk) {
+      output.write(chunk);
+    },
+  });
+  redirectToImage?.data?.pipeTo(stream);
+    
 }
