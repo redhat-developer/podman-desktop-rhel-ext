@@ -29,7 +29,8 @@ const extensionLabel = 'redhat.macadam';
 const extensionHeading = 'Macadam';
 let extensionInstalled = false;
 const skipInstallation = process.env.SKIP_INSTALLATION;
-const extensionURL = 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:7623ee8425410781d5506be9e6223e030b9408ba';
+const extensionURL =
+  process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:7623ee8425410781d5506be9e6223e030b9408ba';
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -47,7 +48,6 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner }) => {
-  test.setTimeout(120_000);
   await runner.close();
 });
 
@@ -59,7 +59,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
   test('Uninstalled previous version of bootc extension', async ({ navigationBar }) => {
     test.skip(!extensionInstalled || !!skipInstallation);
-    test.setTimeout(200_000);
+    test.setTimeout(120_000);
     console.log('Extension found already installed, trying to remove!');
     await ensureRhelExtensionIsRemoved(navigationBar);
   });
