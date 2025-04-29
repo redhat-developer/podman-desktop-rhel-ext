@@ -23,7 +23,12 @@ RUN pnpm --frozen-lockfile install && \
     pnpm build
 
 RUN echo "node-linker=hoisted" >> /opt/app-root/src/dist/.npmrc
-RUN pnpm --dir /opt/app-root/src/dist add ssh2 @crc-org/macadam.js@0.0.1-202504180956-af4279b
+RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependencies.\"$1\".version"; };' && \
+        MACADAM_VERSION=$(dep_version "@crc-org/macadam.js") && \
+        SSH2_VERSION=$(dep_version "ssh2") && \
+        echo adding @crc-org/macadam.js version ${MACADAM_VERSION} && \
+        echo adding ssh2 version ${SSH2_VERSION} && \
+        pnpm --dir /opt/app-root/src/dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
 
 FROM scratch
 
