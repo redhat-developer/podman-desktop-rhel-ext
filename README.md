@@ -1,13 +1,24 @@
 # Macadam Extension
 
-The Macadam extension is a POC to show how macadam tool can be used to init/start/stop any linux image (e.g fedora, rhel) in any OS
+The RHEL extension helps the user run RHEL VMs.
 
 ## Pre-requisites
 
-- Build macadam binary from sources (https://github.com/crc-org/macadam), and install it in the extension's directory `~/.local/share/containers/podman-desktop/extensions-storage/redhat.macadam/bin/` (keep the name as `macadam-${osName}-${arch}`).
-- Configure containers (`~/.config/containers/containers.conf`) to use default machine provider (not libkrun).
-- Install latest versions of `vfkit` (main branch) and `gvproxy` (v0.8.4) in a directory, and export the environment variable `CONTAINERS_HELPER_BINARY_DIR` with the name of the directory containing these executables.
+### On Windows
 
+The `macadam` binary is embedded in the extension, nothing needs to be installed.
+
+### On Mac
+
+When initialized, the extension checks if the necessary binaries are present in `/opt/macadam/bin`. If they are not, the extension installs them in this directory.
+
+> If this installation fails, you can run the installer manually, using the installer found at https://github.com/crc-org/macadam/releases/tag/v0.1.0. After this, you need to restart the extension which should find and use the binaries.
+
+## Install the extension
+
+OCI Images to install the extensions are available at https://github.com/redhat-developer/podman-desktop-rhel-ext/pkgs/container/podman-desktop-rhel-ext.
+
+The latest development image is ghcr.io/redhat-developer/podman-desktop-rhel-ext:next
 
 ## Contributing
 
