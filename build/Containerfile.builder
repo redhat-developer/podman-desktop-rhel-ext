@@ -17,6 +17,10 @@
 
 FROM registry.access.redhat.com/ubi9/nodejs-22
 
+USER root
+RUN dnf install -y jq
+USER default
+
 COPY package.json .
 COPY pnpm-lock.yaml .
 COPY .npmrc .
