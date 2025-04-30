@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
-import { rhsmClientV1 } from "./authentication";
+import { rhsmClientV1 } from "./extension";
 
 export function getErrorMessage(err: unknown): string {
   if (err && typeof err === 'object' && 'message' in err) {

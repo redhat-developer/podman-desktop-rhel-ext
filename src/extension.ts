@@ -19,11 +19,10 @@
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
-import { initAuthentication } from './authentication';
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
 import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
-import { getErrorMessage, pullImageFromRedHatRegistry, verifyContainerProivder } from './utils';
+import { getErrorMessage, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
