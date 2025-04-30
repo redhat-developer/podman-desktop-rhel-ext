@@ -80,7 +80,8 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck:backend": "tsc --noEmit",
-    "watch": "vite build -w"
+    "watch": "vite build -w",
+    "test:e2e": "cd tests/playwright && npm run test:e2e"
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.0.1-202504180956-af4279b",

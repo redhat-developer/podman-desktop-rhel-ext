@@ -30,7 +30,7 @@ const extensionHeading = 'Macadam';
 let extensionInstalled = false;
 const skipInstallation = process.env.SKIP_INSTALLATION;
 const extensionURL =
-  process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:7623ee8425410781d5506be9e6223e030b9408ba';
+  process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:next';
 
 test.use({
   runnerOptions: new RunnerOptions({
