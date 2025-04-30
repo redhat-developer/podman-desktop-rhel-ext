@@ -467,15 +467,11 @@ async function createVM(
     telemetryRecords.imagePath = 'custom';
   }
 
-  // ssh identity path
-  const sshIdentityPath = params['macadam.factory.machine.ssh-identity-path'];
-
   const startTime = performance.now();
   try {
     await macadam.createVm({
       name: name,
       imagePath: imagePath,
-      sshIdentityPath: sshIdentityPath,
       username: 'core',
       containerProvider: provider,
       runOptions: { logger, token },
