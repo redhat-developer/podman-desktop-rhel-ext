@@ -16,6 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
@@ -423,7 +426,7 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
       logger?: extensionApi.Logger,
       token?: extensionApi.CancellationToken,
     ) => {
-      return createVM(params, logger, token);
+      return createVM(extensionContext, params, logger, token);
     },
     creationDisplayName: 'Virtual machine',
   });
@@ -432,6 +435,7 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
 }
 
 async function createVM(
+  extensionContext: extensionApi.ExtensionContext,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
   logger?: extensionApi.Logger,
@@ -462,9 +466,17 @@ async function createVM(
   const name = params['macadam.factory.machine.name'];
 
   // image-path
-  const imagePath = params['macadam.factory.machine.image-path'];
+  let imagePath = params['macadam.factory.machine.image-path'];
   if (imagePath) {
     telemetryRecords.imagePath = 'custom';
+  }
+
+  if (!imagePath) {
+    const cachedImagePath = resolve(extensionContext.storagePath, 'images', 'image');
+    if (existsSync(cachedImagePath)) {
+      imagePath = cachedImagePath;
+      telemetryRecords.imagePath = 'cached';
+    }
   }
 
   const startTime = performance.now();
