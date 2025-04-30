@@ -104,10 +104,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   });
 
   extensionContext.subscriptions.push(macadamCli);
-  console.log(rhsmClientV1);
-  rhsmClientV1  = await initAuthentication();
-  console.log(rhsmClientV1);
-  await pullImageFromRedHatRegistry('');
 }
 
 async function timeout(time: number): Promise<void> {

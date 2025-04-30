@@ -36,19 +36,14 @@ export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyp
   }
 }
 
-export async function pullImageFromRedHatRegistry(imageSha: string) {
-  const redirectToImage = await rhsmClientV1?.images?.downloadImageUsingSha('07e968a75124c0dfa203ff48c678fdab43a17f688a1d9da46e96d4d849a36a59');
+export async function pullImageFromRedHatRegistry(imageSha: string, imagePathToSave:string) {
+  const redirectToImage = await rhsmClientV1?.images?.downloadImageUsingSha(imageSha);
 
-  if (redirectToImage) {
-    console.log('Redirected =>', redirectToImage.data);
-    console.log('Redirected =>', redirectToImage.data);
-  }
-  const output = fs.createWriteStream('/Users/sonia_sandler/Desktop/imagetestfetch');
+  const output = fs.createWriteStream(imagePathToSave);
   const stream = new WritableStream({
     write(chunk) {
       output.write(chunk);
     },
   });
   redirectToImage?.data?.pipeTo(stream);
-    
 }

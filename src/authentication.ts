@@ -21,7 +21,7 @@ import * as extensionApi from '@podman-desktop/api';
 import { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 
 export async function initAuthentication(): Promise<SubscriptionManagerClientV1 | undefined> {
-  const currentSession = await extensionApi.authentication.getSession('redhat.authentication-provider', []);
+  const currentSession = await extensionApi.authentication.getSession('redhat.authentication-provider', ['api.console'], {createIfNone: true});
 
   if (!currentSession) {
     console.log('unable to connect to Red Hat SSO, please configure the RH authentication');
