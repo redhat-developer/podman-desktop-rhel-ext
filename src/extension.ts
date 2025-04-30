@@ -46,6 +46,7 @@ export interface BinaryInfo {
 }
 
 export type MachineInfo = {
+  name: string;
   image: string;
   cpus: number;
   memory: number;
@@ -57,6 +58,7 @@ export type MachineInfo = {
 };
 
 type MachineJSON = {
+  Name: string;
   Image: string;
   CPUs: number;
   Memory: string;
@@ -79,7 +81,7 @@ export let macadam: macadamJSPackage.Macadam;
 export const macadamMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
-  macadam = new macadamJSPackage.Macadam('RHEL extension');
+  macadam = new macadamJSPackage.Macadam('rhel');
   await macadam.init();
 
   const provider = await createProvider(extensionContext);
@@ -173,6 +175,7 @@ async function startMachine(
 
   try {
     await macadam.startVm({
+      name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
       runOptions: { logger: new LoggerDelegator(context, logger) },
     });
@@ -201,6 +204,7 @@ async function stopMachine(
   telemetryRecords.provider = 'macadam';
   try {
     await macadam.stopVm({
+      name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
       runOptions: { logger: new LoggerDelegator(context, logger) },
     });
@@ -231,6 +235,7 @@ async function registerProviderFor(
     },
     delete: async (logger): Promise<void> => {
       await macadam.removeVm({
+        name: machineInfo.name,
         containerProvider: verifyContainerProivder(machineInfo.vmType),
         runOptions: { logger },
       });
@@ -241,7 +246,7 @@ async function registerProviderFor(
   context.subscriptions.push(providerConnectionShellAccess);
 
   const vmProviderConnection: extensionApi.VmProviderConnection = {
-    name: 'macadam',
+    name: machineInfo.name,
     status: () => macadamMachinesStatuses.get(machineInfo.image) ?? 'unknown',
     shellAccess: providerConnectionShellAccess,
     lifecycle,
@@ -294,6 +299,7 @@ async function updateMachines(provider: extensionApi.Provider, context: extensio
     // TODO update cpu/memory/disk usage
 
     macadamMachinesInfo.set(machine.Image, {
+      name: machine.Name,
       image: machine.Image,
       memory: Number(machine.Memory),
       cpus: Number(machine.CPUs),
@@ -452,6 +458,9 @@ async function createVM(
     }
   }
 
+  // name
+  const name = params['macadam.factory.machine.name'];
+
   // image-path
   const imagePath = params['macadam.factory.machine.image-path'];
   if (imagePath) {
@@ -464,6 +473,7 @@ async function createVM(
   const startTime = performance.now();
   try {
     await macadam.createVm({
+      name: name,
       imagePath: imagePath,
       sshIdentityPath: sshIdentityPath,
       username: 'core',

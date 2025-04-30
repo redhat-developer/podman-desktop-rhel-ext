@@ -14,6 +14,12 @@
     "configuration": {
       "title": "Macadam",
       "properties": {
+        "macadam.factory.machine.name": {
+          "type": "string",
+          "scope": "VmProviderConnectionFactory",
+          "default": "rhel",
+          "description": "Machine Name"
+        },
         "macadam.factory.machine.image-path": {
           "type": "string",
           "format": "file",
