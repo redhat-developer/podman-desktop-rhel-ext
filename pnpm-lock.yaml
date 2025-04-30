@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.0.1-202504281252-d8f4ce7
-        version: 0.0.1-202504281252-d8f4ce7
+        specifier: 0.0.1-202504301306-5ade487
+        version: 0.0.1-202504301306-5ade487
       '@podman-desktop/api':
         specifier: 1.18.0
         version: 1.18.0
@@ -137,8 +137,8 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@crc-org/macadam.js@0.0.1-202504281252-d8f4ce7':
-    resolution: {integrity: sha512-2G7ORfNZGGzgDO7gFWKiyi3c0Pc8667DfuwqygnfmhwfBgBHQ3cUf37FhdV8t7AZrgAKnLw5j4+69mbHUHrIEw==, tarball: https://npm.pkg.github.com/download/@crc-org/macadam.js/0.0.1-202504281252-d8f4ce7/57294911e841bd6057c2baca97c0a21fac4f604d}
+  '@crc-org/macadam.js@0.0.1-202504301306-5ade487':
+    resolution: {integrity: sha512-xMRIbDDU+u7Jp4KEPvXRZZMG/7PL8GHrZ2dWu8L0+Wg0zfHYI3s9n3fjg96U8ZS+8RPMMup0z+lr4O6bmqrEWw==, tarball: https://npm.pkg.github.com/download/@crc-org/macadam.js/0.0.1-202504301306-5ade487/9ce1625fab886e6ef1215640d4d700c09933b69b}
 
   '@csstools/color-helpers@5.0.2':
     resolution: {integrity: sha512-JqWH1vsgdGcw2RR6VliXXdA0/59LttzlU8UlRT/iUUsEeWfYq8I+K0yhihEUTTHLRm1EXvpsCx3083EU15ecsA==}
@@ -2675,7 +2675,7 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@crc-org/macadam.js@0.0.1-202504281252-d8f4ce7':
+  '@crc-org/macadam.js@0.0.1-202504301306-5ade487':
     dependencies:
       '@podman-desktop/api': 1.18.0
 
