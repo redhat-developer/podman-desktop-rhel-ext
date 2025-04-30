@@ -27,13 +27,6 @@
           "default": "",
           "description": "Image Path"
         },
-        "macadam.factory.machine.ssh-identity-path": {
-          "type": "string",
-          "format": "file",
-          "scope": "VmProviderConnectionFactory",
-          "default": "",
-          "description": "Ssh Identity Path"
-        },
         "macadam.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",
