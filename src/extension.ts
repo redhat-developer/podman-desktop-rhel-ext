@@ -39,7 +39,7 @@ let wslEnabled = false;
 const WSL_HYPERV_ENABLED_KEY = 'macadam.wslHypervEnabled';
 
 const listeners = new Set<StatusHandler>();
-export const rhsmClientV1: SubscriptionManagerClientV1 | undefined = undefined;
+export let rhsmClientV1: SubscriptionManagerClientV1 | undefined;
 
 export interface BinaryInfo {
   path: string;
