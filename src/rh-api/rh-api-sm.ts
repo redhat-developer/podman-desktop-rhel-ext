@@ -52,7 +52,6 @@ export class Images extends ClientHolder<paths> {
   }
 }
 
-
 export class SubscriptionManagerClientV1 extends ClientHolder<paths> {
   images: Images;
   constructor(options: { BASE: string; TOKEN: string }) {

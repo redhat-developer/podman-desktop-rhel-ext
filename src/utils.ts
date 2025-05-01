@@ -37,7 +37,7 @@ export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyp
   }
 }
 
-export async function pullImageFromRedHatRegistry(imageSha: string, pathToSave:string): Promise<void> {
+export async function pullImageFromRedHatRegistry(imageSha: string, pathToSave: string): Promise<void> {
   const redirectToImage = await rhsmClientV1?.images?.downloadImageUsingSha(imageSha);
 
   const output = fs.createWriteStream(pathToSave);
