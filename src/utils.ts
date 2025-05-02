@@ -42,7 +42,7 @@ export async function pullImageFromRedHatRegistry(
   imageSha: string,
   pathToSave: string,
 ): Promise<void> {
-  const redirectToImage = await rhsmClientV1?.images?.downloadImageUsingSha(imageSha);
+  const redirectToImage = await rhsmClientV1.images.downloadImageUsingSha(imageSha);
 
   const output = fs.createWriteStream(pathToSave);
   const stream = new WritableStream({
