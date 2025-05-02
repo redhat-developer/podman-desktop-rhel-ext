@@ -20,7 +20,7 @@
 import type { Client } from 'openapi-fetch';
 import createClient from 'openapi-fetch';
 
-import type { paths } from './gen/subscription-v1';
+import type { paths } from '../../src-gen/subscription-v1';
 
 export const REGISTRY_REDHAT_IO = 'registry.redhat.io';
 

@@ -55,7 +55,7 @@ export default [
       '**/coverage/',
       'extensions/*.ts',
       'scripts/**',
-      'src/rh-api/gen/*',
+      'src-gen/*',
     ],
   },
   js.configs.recommended,

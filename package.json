@@ -71,7 +71,7 @@
     }
   },
   "scripts": {
-    "generate:subscription-v1": "npx openapi-typescript src/rh-api/subscription-schema-v1.json -o src/rh-api/gen/subscription-v1.d.ts",
+    "generate:subscription-v1": "npx openapi-typescript src/rh-api/subscription-schema-v1.json -o src-gen/subscription-v1.d.ts",
     "build": "pnpm generate:subscription-v1 && vite build",
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest watch --coverage --passWithNoTests",
