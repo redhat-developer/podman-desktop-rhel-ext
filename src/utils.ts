@@ -16,6 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+
+import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
+
 export function getErrorMessage(err: unknown): string {
   if (err && typeof err === 'object' && 'message' in err) {
     return String(err.message);
@@ -31,4 +35,20 @@ export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyp
   } else {
     return undefined;
   }
+}
+
+export async function pullImageFromRedHatRegistry(
+  rhsmClientV1: SubscriptionManagerClientV1,
+  imageSha: string,
+  pathToSave: string,
+): Promise<void> {
+  const redirectToImage = await rhsmClientV1.images.downloadImageUsingSha(imageSha);
+
+  const output = fs.createWriteStream(pathToSave);
+  const stream = new WritableStream({
+    write(chunk): void {
+      output.write(chunk);
+    },
+  });
+  await redirectToImage?.data?.pipeTo(stream);
 }
