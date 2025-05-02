@@ -8,3 +8,4 @@ dist
 /.npmrc
 output
 test-results
+src/rh-api/gen
