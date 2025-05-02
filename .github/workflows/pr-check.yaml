@@ -49,6 +49,9 @@ jobs:
       - name: Execute pnpm
         run: pnpm install --frozen-lockfile
 
+      - name: Execute build to generate files
+        run: pnpm build
+
       - name: Run linter
         run: pnpm lint:check
 
@@ -79,6 +82,9 @@ jobs:
           
       - name: Execute pnpm
         run: pnpm install
+
+      - name: Execute build to generate files
+        run: pnpm build
 
       - name: Run typecheck
         run: pnpm typecheck:backend
@@ -111,6 +117,9 @@ jobs:
 
       - name: Execute pnpm
         run: pnpm install
+
+      - name: Execute build to generate files
+        run: pnpm build
 
       - name: Run unit tests
         run: pnpm test
