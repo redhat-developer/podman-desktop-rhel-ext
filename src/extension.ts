@@ -21,7 +21,6 @@ import * as extensionApi from '@podman-desktop/api';
 
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
-import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 import { getErrorMessage, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
@@ -39,7 +38,6 @@ let wslEnabled = false;
 const WSL_HYPERV_ENABLED_KEY = 'macadam.wslHypervEnabled';
 
 const listeners = new Set<StatusHandler>();
-export let rhsmClientV1: SubscriptionManagerClientV1 | undefined;
 
 export interface BinaryInfo {
   path: string;
