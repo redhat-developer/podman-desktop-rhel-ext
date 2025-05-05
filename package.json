@@ -25,7 +25,7 @@
           "format": "file",
           "scope": "VmProviderConnectionFactory",
           "default": "",
-          "description": "Image Path"
+          "description": "Image Path (Optional)"
         },
         "macadam.factory.machine.cpus": {
           "type": "number",
