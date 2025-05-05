@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import * as macadamJSPackage from '@crc-org/macadam.js';
@@ -474,7 +475,8 @@ async function createVM(
   }
 
   if (!imagePath) {
-    const cachedImagePath = resolve(extensionContext.storagePath, 'images', 'image');
+    const cachedImageDir = resolve(extensionContext.storagePath, 'images');
+    const cachedImagePath = resolve(cachedImageDir, 'image');
     if (existsSync(cachedImagePath)) {
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'cached';
@@ -484,6 +486,7 @@ async function createVM(
         throw new Error('unable to authenticate');
       }
       const imageSha = getImageSha(provider);
+      await mkdir(cachedImageDir, { recursive: true });
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'downloaded';
