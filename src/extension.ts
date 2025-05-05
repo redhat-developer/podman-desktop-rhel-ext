@@ -22,9 +22,11 @@ import { resolve } from 'node:path';
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
+import { initAuthentication } from './authentication';
+import { getImageSha } from './images';
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
-import { getErrorMessage, verifyContainerProivder } from './utils';
+import { getErrorMessage, pullImageFromRedHatRegistry, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
@@ -476,6 +478,15 @@ async function createVM(
     if (existsSync(cachedImagePath)) {
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'cached';
+    } else {
+      const client = await initAuthentication();
+      if (!client) {
+        throw new Error('unable to authenticate');
+      }
+      const imageSha = getImageSha(provider);
+      await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
+      imagePath = cachedImagePath;
+      telemetryRecords.imagePath = 'downloaded';
     }
   }
 
