@@ -50,5 +50,5 @@ export async function pullImageFromRedHatRegistry(
       output.write(chunk);
     },
   });
-  await redirectToImage?.data?.pipeTo(stream);
+  await redirectToImage.data?.pipeTo(stream);
 }

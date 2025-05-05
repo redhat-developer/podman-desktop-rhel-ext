@@ -17,14 +17,17 @@
  ***********************************************************************/
 
 import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
+import { initAuthentication } from './authentication';
+import { getImageSha } from './images';
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
-import { getErrorMessage, verifyContainerProivder } from './utils';
+import { getErrorMessage, pullImageFromRedHatRegistry, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
@@ -472,10 +475,21 @@ async function createVM(
   }
 
   if (!imagePath) {
-    const cachedImagePath = resolve(extensionContext.storagePath, 'images', 'image');
+    const cachedImageDir = resolve(extensionContext.storagePath, 'images');
+    const cachedImagePath = resolve(cachedImageDir, 'image');
     if (existsSync(cachedImagePath)) {
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'cached';
+    } else {
+      const client = await initAuthentication();
+      if (!client) {
+        throw new Error('unable to authenticate');
+      }
+      const imageSha = getImageSha(provider);
+      await mkdir(cachedImageDir, { recursive: true });
+      await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
+      imagePath = cachedImagePath;
+      telemetryRecords.imagePath = 'downloaded';
     }
   }
 
