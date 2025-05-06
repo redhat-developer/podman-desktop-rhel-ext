@@ -18,7 +18,14 @@ When initialized, the extension checks if the necessary binaries are present in 
 
 The `macadam` binary must be installed in the directory `/opt/macadam/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.1.1, rename it `macadam` and make it executable.
 
+```
+curl -L -o macadam https://github.com/crc-org/macadam/releases/download/v0.1.1/macadam-linux-amd64
+chmod 755 macadam
+sudo mv macadam /opt/macadam/bin/
+```
+
 The `gvproxy` binary must be installed with the command `dnf install gvisor-tap-vsock`.
+
 
 ## Install the extension
 
