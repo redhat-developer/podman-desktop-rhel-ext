@@ -21,6 +21,7 @@ The `macadam` binary must be installed in the directory `/opt/macadam/bin/`: dow
 ```
 curl -L -o macadam https://github.com/crc-org/macadam/releases/download/v0.1.1/macadam-linux-amd64
 chmod 755 macadam
+sudo mkdir -p /opt/macadam/bin/
 sudo mv macadam /opt/macadam/bin/
 ```
 
