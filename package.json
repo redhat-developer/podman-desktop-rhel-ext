@@ -1,7 +1,7 @@
 {
-  "name": "macadam",
-  "displayName": "Macadam",
-  "description": "Integration for macadam: a tool to create/start linux VM on any OS",
+  "name": "rhel-vms",
+  "displayName": "RHEL VMs",
+  "description": "Create Red Hat Enterprise Linux VMs easily",
   "version": "0.0.1",
   "icon": "icon.png",
   "license": "Apache-2.0",
@@ -12,7 +12,7 @@
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Macadam",
+      "title": "RHEL VMs",
       "properties": {
         "macadam.factory.machine.name": {
           "type": "string",
