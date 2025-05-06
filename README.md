@@ -14,11 +14,11 @@ When initialized, the extension checks if the necessary binaries are present in 
 
 > If this installation fails, you can run the installer manually, using the installer found at https://github.com/crc-org/macadam/releases/tag/v0.1.1. After this, you need to restart the extension which should find and use the binaries.
 
-### On Linux/x86_64
+### On Fedora Linux/x86_64
 
-The `macadam` binary must be installed in the directory `/opt/macadam/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.1.1 and rename it `macadam`.
+The `macadam` binary must be installed in the directory `/opt/macadam/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.1.1, rename it `macadam` and make it executable.
 
-The `gvproxy` binary must be installed in the directory `/usr/local/libexec/podman/`: download the binary from https://github.com/containers/gvisor-tap-vsock/releases/tag/v0.8.5 and rename it `gvproxy`.
+The `gvproxy` binary must be installed with the command `dnf install gvisor-tap-vsock`.
 
 ## Install the extension
 
