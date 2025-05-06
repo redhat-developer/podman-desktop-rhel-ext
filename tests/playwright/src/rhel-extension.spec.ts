@@ -29,8 +29,7 @@ const extensionLabel = 'redhat.macadam';
 const extensionHeading = 'Macadam';
 let extensionInstalled = false;
 const skipInstallation = process.env.SKIP_INSTALLATION;
-const extensionURL =
-  process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:next';
+const extensionURL = process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:next';
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -90,8 +89,10 @@ async function ensureRhelExtensionIsRemoved(navigationBar: NavigationBar): Promi
     extensionLabel,
     extensionHeading,
   );
+  await playExpect(rhelExtensionDetailsPage.heading).toBeVisible({ timeout: 10_000 });
   await rhelExtensionDetailsPage.removeExtension();
   extensionsPage = await navigationBar.openExtensions();
+  await playExpect(extensionsPage.heading).toBeVisible({ timeout: 10_000 });
 
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
