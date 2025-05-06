@@ -24,9 +24,9 @@ import {
   waitForPodmanMachineStartup,
 } from '@podman-desktop/tests-playwright';
 
-const extensionName = 'macadam';
-const extensionLabel = 'redhat.macadam';
-const extensionHeading = 'Macadam';
+const extensionName = 'rhel-vms';
+const extensionLabel = 'redhat.rhel-vms';
+const extensionHeading = 'RHEL VMs';
 let extensionInstalled = false;
 const skipInstallation = process.env.SKIP_INSTALLATION;
 const extensionURL = process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:next';
