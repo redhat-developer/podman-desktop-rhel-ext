@@ -1,6 +1,6 @@
-# Macadam Extension
+# RHEL VMs Extension
 
-The RHEL extension helps the user run RHEL VMs.
+The RHEL VMs extension helps the user run RHEL Virtual machines.
 
 ## Pre-requisites
 
@@ -28,9 +28,9 @@ The latest development image is ghcr.io/redhat-developer/podman-desktop-rhel-ext
 
 ## Contributing
 
-Want to help develop and contribute to the Macadam extension?
+Want to help develop and contribute to the RHEL VMs extension?
 
-You can use pnpm watch --extension-folder from the Podman Desktop directory to automatically rebuild and test the Macadam extension:
+You can use pnpm watch --extension-folder from the Podman Desktop directory to automatically rebuild and test the RHEL VMs extension:
 
 Note: make sure you have the appropriate [pre-requisites](https://github.com/podman-desktop/podman-desktop/blob/main/CONTRIBUTING.md#prerequisites-prepare-your-environment) installed.
 

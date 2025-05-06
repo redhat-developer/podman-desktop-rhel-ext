@@ -32,7 +32,7 @@ import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
 const MACADAM_DISPLAY_NAME = 'Macadam';
-const MACADAM_MARKDOWN = `Podman Desktop can help you run RHEL and other linux-based VM by using Macadam.\n\nMore information: Link to macadam here`;
+const MACADAM_MARKDOWN = `macadam CLI can help you run RHEL and other linux-based VMs`;
 let stopLoop = false;
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
@@ -405,7 +405,7 @@ async function monitorMachines(provider: extensionApi.Provider, context: extensi
 
 async function createProvider(extensionContext: extensionApi.ExtensionContext): Promise<extensionApi.Provider> {
   const providerOptions: extensionApi.ProviderOptions = {
-    name: 'Macadam',
+    name: 'RHEL VMs',
     id: 'macadam',
     status: 'unknown',
     images: {
