@@ -31,8 +31,10 @@ import { getErrorMessage, pullImageFromRedHatRegistry, verifyContainerProivder }
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
 
 const MACADAM_CLI_NAME = 'macadam';
-const MACADAM_DISPLAY_NAME = 'Macadam';
-const MACADAM_MARKDOWN = `macadam CLI can help you run RHEL and other linux-based VMs`;
+const MACADAM_CLI_DISPLAY_NAME = 'Macadam';
+const MACADAM_CLI_MARKDOWN = `macadam CLI can help you run RHEL and other linux-based VMs`;
+const EXTENSION_DESCRIPTION_MARKDOWN = `Podman Desktop can help you run Red Hat Enterprise Linux and other Linux-based virtual machines`;
+
 let stopLoop = false;
 
 type StatusHandler = (name: string, event: extensionApi.ProviderConnectionStatus) => void;
@@ -102,8 +104,8 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     images: {
       icon: './icon.png',
     },
-    displayName: MACADAM_DISPLAY_NAME,
-    markdownDescription: MACADAM_MARKDOWN,
+    displayName: MACADAM_CLI_DISPLAY_NAME,
+    markdownDescription: MACADAM_CLI_MARKDOWN,
   });
 
   extensionContext.subscriptions.push(macadamCli);
@@ -415,7 +417,7 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
         light: './icon.png',
       },
     },
-    emptyConnectionMarkdownDescription: MACADAM_MARKDOWN,
+    emptyConnectionMarkdownDescription: EXTENSION_DESCRIPTION_MARKDOWN,
   };
 
   const provider = extensionApi.provider.createProvider(providerOptions);
