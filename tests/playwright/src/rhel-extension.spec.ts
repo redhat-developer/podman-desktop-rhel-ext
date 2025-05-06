@@ -51,12 +51,13 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('RHEL Extension E2E Tests', () => {
+  test.describe.configure({ retries: 1 });
   test('Go to settings and check if extension is already installed', async ({ navigationBar }) => {
     const extensionsPage = await navigationBar.openExtensions();
     if (await extensionsPage.extensionIsInstalled(extensionLabel)) extensionInstalled = true;
   });
 
-  test('Uninstalled previous version of bootc extension', async ({ navigationBar }) => {
+  test('Uninstalled previous version of rhel extension', async ({ navigationBar }) => {
     test.skip(!extensionInstalled || !!skipInstallation);
     test.setTimeout(120_000);
     console.log('Extension found already installed, trying to remove!');
