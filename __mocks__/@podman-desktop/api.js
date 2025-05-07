@@ -36,6 +36,9 @@ const plugin = {
   },
   cli: {
     createCliTool: vi.fn(),
+  },
+  context: {
+    setValue: vi.fn(),
   }
 };
 module.exports = plugin;

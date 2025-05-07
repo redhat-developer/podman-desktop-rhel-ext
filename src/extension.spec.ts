@@ -275,4 +275,60 @@ bla bla
       });
     });
   });
+
+  describe('list', () => {
+    beforeEach(() => {
+      vi.mocked(utils.verifyContainerProivder).mockImplementation((f): 'wsl' | 'hyperv' | 'applehv' | undefined => {
+        if (!f) {
+          return undefined;
+        }
+        return f as 'wsl' | 'hyperv' | 'applehv' | undefined;
+      });
+      vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([]);
+    });
+
+    describe('on Mac', async () => {
+      const authClient: SubscriptionManagerClientV1 = {
+        images: {
+          downloadImageUsingSha: vi.fn(),
+        },
+      } as unknown as SubscriptionManagerClientV1;
+      beforeEach(async () => {
+        vi.mocked(extensionApi.env).isMac = true;
+        vi.mocked(extensionApi.env).isWindows = false;
+        vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+      });
+
+      test('listVms is called once', async () => {
+        await activate(extensionContext);
+        await vi.waitFor(() => {
+          expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'applehv' });
+        });
+      });
+    });
+
+    describe('on Windows and wsl and hyperv enabled', async () => {
+      const authClient: SubscriptionManagerClientV1 = {
+        images: {
+          downloadImageUsingSha: vi.fn(),
+        },
+      } as unknown as SubscriptionManagerClientV1;
+      beforeEach(async () => {
+        vi.mocked(extensionApi.env).isMac = false;
+        vi.mocked(extensionApi.env).isWindows = true;
+        vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+        vi.mocked(winutils.isWSLEnabled).mockResolvedValue(true);
+        vi.mocked(winutils.isHyperVEnabled).mockResolvedValue(true);
+      });
+
+      test('listVms is called for each provider', async () => {
+        await activate(extensionContext);
+        await vi.waitFor(() => {
+          expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledTimes(2);
+        });
+        expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'wsl' });
+        expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'hyperv' });
+      });
+    });
+  });
 });
