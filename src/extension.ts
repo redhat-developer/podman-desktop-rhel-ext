@@ -493,7 +493,7 @@ async function createVM(
       const imageSha = getImageSha(provider);
       await mkdir(cachedImageDir, { recursive: true });
       logger?.log('Downloading image, please wait...\n');
-      await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
+      await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath, logger, token);
       logger?.log(`Image downloaded\n`);
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'downloaded';

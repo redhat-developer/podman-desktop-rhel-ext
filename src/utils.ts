@@ -17,6 +17,9 @@
  ***********************************************************************/
 
 import * as fs from 'node:fs';
+import { rm } from 'node:fs/promises';
+
+import type * as extensionApi from '@podman-desktop/api';
 
 import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 
@@ -41,14 +44,27 @@ export async function pullImageFromRedHatRegistry(
   rhsmClientV1: SubscriptionManagerClientV1,
   imageSha: string,
   pathToSave: string,
+  logger?: extensionApi.Logger,
+  token?: extensionApi.CancellationToken,
 ): Promise<void> {
-  const redirectToImage = await rhsmClientV1.images.downloadImageUsingSha(imageSha);
+  const controller = new AbortController();
+  const signal = controller.signal;
 
+  const redirectToImage = await rhsmClientV1.images.downloadImageUsingSha(imageSha);
   const output = fs.createWriteStream(pathToSave);
   const stream = new WritableStream({
     write(chunk): void {
       output.write(chunk);
     },
   });
-  await redirectToImage.data?.pipeTo(stream);
+
+  token?.onCancellationRequested(() => {
+    logger?.log('Download canceled\n');
+    controller.abort();
+    output.close(() => {
+      rm(pathToSave).catch((err: unknown) => console.error(`error removing canceled image doanloaded: ${String(err)}`));
+    });
+  });
+
+  await redirectToImage.data?.pipeTo(stream, { signal });
 }
