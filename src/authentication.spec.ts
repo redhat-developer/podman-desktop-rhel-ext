@@ -46,7 +46,7 @@ test('init authetication returns SubscriptionManagerClientV1 if there is current
   } as unknown as extensionApi.AuthenticationSession);
 
   await initAuthentication();
-  
+
   expect(SubscriptionManagerClientV1).toBeCalledWith({
     BASE: 'https://api.access.redhat.com/management/v1/',
     TOKEN: 'token-1',

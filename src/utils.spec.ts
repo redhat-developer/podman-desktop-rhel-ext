@@ -45,7 +45,7 @@ test('verifyContainerProivder', () => {
 
 test('pullImageFromRedHatRegistry', async () => {
   const rhsmClientV1 = { images: { downloadImageUsingSha: vi.fn() } } as unknown as SubscriptionManagerClientV1;
-  
+
   vi.mocked(rhsmClientV1.images.downloadImageUsingSha).mockResolvedValue({
     data: { pipeTo: vi.fn() } as unknown as ReadableStream,
   } as unknown as FetchResponse<Record<string, unknown>, unknown, '/'>);
@@ -53,5 +53,5 @@ test('pullImageFromRedHatRegistry', async () => {
   await pullImageFromRedHatRegistry(rhsmClientV1, 'image1234', '/path/to/save');
 
   expect(rhsmClientV1.images.downloadImageUsingSha).toBeCalledWith('image1234');
-  expect(vi.mocked(fs.createWriteStream)).toBeCalledWith('/path/to/save');
+  expect(fs.createWriteStream).toBeCalledWith('/path/to/save');
 });
