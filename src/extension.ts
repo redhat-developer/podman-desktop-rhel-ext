@@ -487,11 +487,14 @@ async function createVM(
     if (existsSync(cachedImagePath)) {
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'cached';
+      logger?.log(`Using image cached in ${cachedImagePath}\n`);
     } else {
       const client = await initAuthentication();
       const imageSha = getImageSha(provider);
       await mkdir(cachedImageDir, { recursive: true });
+      logger?.log('Downloading image, please wait...\n');
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
+      logger?.log(`Image downloaded\n`);
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'downloaded';
     }
@@ -499,6 +502,7 @@ async function createVM(
 
   const startTime = performance.now();
   try {
+    logger?.log('Creating VM, please wait...\n');
     await macadam.createVm({
       name: name,
       imagePath: imagePath,
