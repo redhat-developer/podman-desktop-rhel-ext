@@ -118,19 +118,26 @@ async function timeout(time: number): Promise<void> {
 
 async function getJSONMachineList(): Promise<MachineJSONListOutput> {
   const vmProviders: (string | undefined)[] = [];
-  let hypervEnabled = false;
-  let wslEnabled = false;
-  if (await isWSLEnabled()) {
-    wslEnabled = true;
-    vmProviders.push('wsl');
+
+  if (extensionApi.env.isWindows) {
+    let hypervEnabled = false;
+    let wslEnabled = false;
+    if (await isWSLEnabled()) {
+      wslEnabled = true;
+      vmProviders.push('wsl');
+    }
+
+    if (await isHyperVEnabled()) {
+      hypervEnabled = true;
+      vmProviders.push('hyperv');
+    }
+    // update context "wsl-hyperv enabled" value
+    updateWSLHyperVEnabledContextValue(wslEnabled && hypervEnabled);
   }
 
-  if (await isHyperVEnabled()) {
-    hypervEnabled = true;
-    vmProviders.push('hyperv');
+  if (extensionApi.env.isMac) {
+    vmProviders.push('applehv');
   }
-  // update context "wsl-hyperv enabled" value
-  updateWSLHyperVEnabledContextValue(wslEnabled && hypervEnabled);
 
   if (vmProviders.length === 0) {
     // in all other cases we set undefined so that it executes normally by using the default vm provider
