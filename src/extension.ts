@@ -485,7 +485,7 @@ async function createVM(
       const client = await initAuthentication();
       const imageSha = getImageSha(provider);
       await mkdir(cachedImageDir, { recursive: true });
-      logger?.log(`Downloading image, please wait...\n`);
+      logger?.log('Downloading image, please wait...\n');
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
       logger?.log(`Image downloaded\n`);
       imagePath = cachedImagePath;
@@ -495,7 +495,7 @@ async function createVM(
 
   const startTime = performance.now();
   try {
-    logger?.log(`Creating VM, please wait...\n`);
+    logger?.log('Creating VM, please wait...\n');
     await macadam.createVm({
       name: name,
       imagePath: imagePath,
