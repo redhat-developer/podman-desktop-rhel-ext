@@ -15,30 +15,28 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import { vi } from 'vitest';
 
-import path from 'node:path';
-
-const excludeArray = [
-  'tests/playwright/**', '**/builtin/**',
-  '**/node_modules/**',
-  '**/dist/**',
-  '**/.{idea,git,cache,output,temp,cdix}/**',
-  '**/{.electron-builder,babel,changelog,docusaurus,jest,postcss,prettier,rollup,svelte,tailwind,vite,vitest*,webpack}.config.*',];
-  
-const config = {
-  test: {
-    exclude: excludeArray,
-    coverage: {
-      provider: 'v8',
-      reporter: ['lcov', 'text'],
-      extension: '.ts',
-    },
+/**
+ * Mock the extension API for vitest.
+ * This file is referenced from vitest.config.js file.
+ */
+const plugin = {
+  process: {
+    exec: vi.fn(),
   },
-  resolve: {
-    alias: {
-      '@podman-desktop/api': path.resolve(__dirname, '__mocks__/@podman-desktop/api.js'),
-    },
+  env: {
+    isLinux: false,
+    isWindows: false,
+    isMac: false,
+    createTelemetryLogger: vi.fn(),
   },
+  provider: {
+    createProvider: vi.fn(),
+  },
+  cli: {
+    createCliTool: vi.fn(),
+  }
 };
+module.exports = plugin;
 
-export default config;
