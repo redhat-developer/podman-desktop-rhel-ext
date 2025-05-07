@@ -42,7 +42,6 @@ const macadamMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 
 let wslAndHypervEnabledContextValue = false;
-let wslEnabled = false;
 const WSL_HYPERV_ENABLED_KEY = 'macadam.wslHypervEnabled';
 
 const listeners = new Set<StatusHandler>();
@@ -120,11 +119,10 @@ async function timeout(time: number): Promise<void> {
 async function getJSONMachineList(): Promise<MachineJSONListOutput> {
   const vmProviders: (string | undefined)[] = [];
   let hypervEnabled = false;
+  let wslEnabled = false;
   if (await isWSLEnabled()) {
     wslEnabled = true;
     vmProviders.push('wsl');
-  } else {
-    wslEnabled = false;
   }
 
   if (await isHyperVEnabled()) {
@@ -459,7 +457,7 @@ async function createVM(
     telemetryRecords.provider = provider;
   } else {
     if (extensionApi.env.isWindows) {
-      provider = wslEnabled ? 'wsl' : 'hyperv';
+      provider = (await isWSLEnabled()) ? 'wsl' : 'hyperv';
       telemetryRecords.provider = provider;
     } else if (extensionApi.env.isMac) {
       provider = 'applehv';
@@ -484,9 +482,6 @@ async function createVM(
       telemetryRecords.imagePath = 'cached';
     } else {
       const client = await initAuthentication();
-      if (!client) {
-        throw new Error('unable to authenticate');
-      }
       const imageSha = getImageSha(provider);
       await mkdir(cachedImageDir, { recursive: true });
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath);
