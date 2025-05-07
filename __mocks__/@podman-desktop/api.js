@@ -39,7 +39,10 @@ const plugin = {
   },
   context: {
     setValue: vi.fn(),
-  }
+  },
+  authentication: {
+    getSession: vi.fn(),
+  },
 };
 module.exports = plugin;
 
