@@ -27,11 +27,13 @@ import * as authentication from './authentication';
 import { activate } from './extension';
 import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 import * as utils from './utils';
+import * as winutils from './win/utils';
 
 vi.mock('./authentication');
 vi.mock('./utils');
 vi.mock('node:fs/promises');
 vi.mock('node:fs');
+vi.mock('./win/utils');
 vi.mock('@crc-org/macadam.js', async () => {
   const Macadam = vi.fn();
   Macadam.prototype.init = vi.fn();
@@ -109,6 +111,7 @@ describe('activate', () => {
       } as unknown as SubscriptionManagerClientV1;
       beforeEach(async () => {
         vi.mocked(extensionApi.env).isMac = true;
+        vi.mocked(extensionApi.env).isWindows = false;
         vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
       });
 
@@ -155,6 +158,120 @@ describe('activate', () => {
           username: 'core',
           runOptions: {},
         });
+      });
+    });
+
+    describe('calling create on Windows and wsl is enabled', async () => {
+      const authClient: SubscriptionManagerClientV1 = {
+        images: {
+          downloadImageUsingSha: vi.fn(),
+        },
+      } as unknown as SubscriptionManagerClientV1;
+      beforeEach(async () => {
+        vi.mocked(extensionApi.env).isMac = false;
+        vi.mocked(extensionApi.env).isWindows = true;
+        vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+        vi.mocked(winutils.isWSLEnabled).mockResolvedValue(true);
+      });
+
+      test('image is pulled when image is not cached', async () => {
+        vi.mocked(fs.existsSync).mockReturnValue(false);
+        await create({});
+        expect(fs.existsSync).toHaveBeenCalledTimes(1);
+        expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'image'));
+        expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
+      });
+
+      test('image is not pulled when image is cached', async () => {
+        vi.mocked(fs.existsSync).mockReturnValue(true);
+        await create({});
+        expect(fs.existsSync).toHaveBeenCalledTimes(1);
+        expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'image'));
+        expect(utils.pullImageFromRedHatRegistry).not.toHaveBeenCalled();
+      });
+
+      test('createVm is called with provided name', async () => {
+        vi.mocked(fs.existsSync).mockReturnValue(true);
+        await create({
+          'macadam.factory.machine.name': 'name1',
+        });
+        expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
+          containerProvider: 'wsl',
+          imagePath: resolve('/', 'path', 'to', 'storage', 'images', 'image'),
+          name: 'name1',
+          username: 'core',
+          runOptions: {},
+        });
+      });
+
+      test('createVm is called with provided image path', async () => {
+        vi.mocked(fs.existsSync).mockReturnValue(true);
+        await create({
+          'macadam.factory.machine.name': 'name1',
+          'macadam.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
+        });
+        expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
+          containerProvider: 'wsl',
+          imagePath: resolve('/', 'path', 'to', 'provided', 'image'),
+          name: 'name1',
+          username: 'core',
+          runOptions: {},
+        });
+      });
+    });
+
+    describe('calling create on Windows and wsl is disabled', async () => {
+      const authClient: SubscriptionManagerClientV1 = {
+        images: {
+          downloadImageUsingSha: vi.fn(),
+        },
+      } as unknown as SubscriptionManagerClientV1;
+      beforeEach(async () => {
+        vi.mocked(extensionApi.env).isMac = false;
+        vi.mocked(extensionApi.env).isWindows = true;
+        vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+        vi.mocked(winutils.isWSLEnabled).mockResolvedValue(false);
+      });
+
+      test('hyperv is not supported', async () => {
+        await expect(create({})).rejects.toThrowError('provider hyperv is not supported');
+      });
+    });
+
+    describe('initAuthentication fails', () => {
+      beforeEach(async () => {
+        vi.mocked(extensionApi.env).isMac = true;
+        vi.mocked(extensionApi.env).isWindows = false;
+        vi.mocked(authentication.initAuthentication).mockRejectedValue('an init error');
+      });
+
+      test('calling create fails', async () => {
+        await expect(create({})).rejects.toThrowError('an init error');
+      });
+    });
+
+    describe('macadam.createVm fails', () => {
+      const authClient: SubscriptionManagerClientV1 = {
+        images: {
+          downloadImageUsingSha: vi.fn(),
+        },
+      } as unknown as SubscriptionManagerClientV1;
+      beforeEach(async () => {
+        vi.mocked(extensionApi.env).isMac = true;
+        vi.mocked(extensionApi.env).isWindows = false;
+        vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+        vi.mocked(macadamJSPackage.Macadam.prototype.createVm).mockRejectedValue({
+          name: 'an error',
+          message: 'a message',
+          stderr: 'bla bla',
+        } as extensionApi.RunError);
+      });
+
+      test('calling create fails', async () => {
+        await expect(create({})).rejects.toThrowError(`an error
+a message
+bla bla
+`);
       });
     });
   });
