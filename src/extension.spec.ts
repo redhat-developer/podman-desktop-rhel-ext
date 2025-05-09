@@ -39,7 +39,14 @@ vi.mock('@crc-org/macadam.js', async () => {
   Macadam.prototype.init = vi.fn();
   Macadam.prototype.createVm = vi.fn();
   Macadam.prototype.listVms = vi.fn();
+  Macadam.prototype.startVm = vi.fn();
+  Macadam.prototype.stopVm = vi.fn();
+  Macadam.prototype.removeVm = vi.fn();
   return { Macadam };
+});
+vi.mock('./macadam-machine-stream.js', async () => {
+  const ProviderConnectionShellAccessImpl = vi.fn();
+  return { ProviderConnectionShellAccessImpl };
 });
 
 beforeEach(() => {
@@ -56,6 +63,8 @@ describe('activate', () => {
 
   const provider: extensionApi.Provider = {
     setVmProviderConnectionFactory: vi.fn(),
+    registerVmProviderConnection: vi.fn(),
+    updateStatus: vi.fn(),
   } as unknown as extensionApi.Provider;
 
   beforeEach(async () => {
@@ -284,7 +293,6 @@ bla bla
         }
         return f as 'wsl' | 'hyperv' | 'applehv' | undefined;
       });
-      vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([]);
     });
 
     describe('on Mac', async () => {
@@ -297,12 +305,138 @@ bla bla
         vi.mocked(extensionApi.env).isMac = true;
         vi.mocked(extensionApi.env).isWindows = false;
         vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+        vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([
+          {
+            Name: 'vm1',
+            Image: '/path/to/image1',
+            CPUs: 1,
+            Memory: '1GB',
+            DiskSize: '1GB',
+            Running: false,
+            Starting: false,
+            Port: 80,
+            RemoteUsername: 'user',
+            IdentityPath: '/path/to/id1',
+            VMType: 'applehv',
+          },
+        ]);
       });
 
       test('listVms is called once', async () => {
         await activate(extensionContext);
         await vi.waitFor(() => {
           expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'applehv' });
+        });
+      });
+
+      test('registerVmProviderConnection is called once', async () => {
+        await activate(extensionContext);
+        await vi.waitFor(() => {
+          expect(provider.registerVmProviderConnection).toHaveBeenCalledOnce();
+        });
+        expect(provider.updateStatus).toHaveBeenCalledWith('ready');
+      });
+
+      describe('start', async () => {
+        let lifecycle: extensionApi.ProviderConnectionLifecycle;
+        beforeEach(async () => {
+          vi.mocked(provider.updateStatus).mockClear();
+          await activate(extensionContext);
+          await vi.waitFor(() => {
+            expect(provider.registerVmProviderConnection).toHaveBeenCalledOnce();
+          });
+          const call = vi.mocked(provider.registerVmProviderConnection).mock.calls[0];
+          assert(!!call[0].lifecycle);
+          lifecycle = call[0].lifecycle;
+        });
+
+        test('calling start which fails', async () => {
+          vi.mocked(macadamJSPackage.Macadam.prototype.startVm).mockRejectedValue('an error');
+          assert(!!lifecycle.start);
+          const logger = {} as extensionApi.Logger;
+          await expect(
+            lifecycle.start({
+              log: logger,
+            }),
+          ).rejects.toThrowError('an error');
+        });
+
+        describe('calling start which works correctly', async () => {
+          const logger = {} as extensionApi.Logger;
+          beforeEach(async () => {
+            assert(!!lifecycle.start);
+            await lifecycle.start({
+              log: logger,
+            });
+          });
+          test('startVm is called and machine is registered as started', async () => {
+            expect(macadamJSPackage.Macadam.prototype.startVm).toHaveBeenCalledOnce();
+            expect(macadamJSPackage.Macadam.prototype.startVm).toHaveBeenCalledWith({
+              containerProvider: 'applehv',
+              name: 'vm1',
+              runOptions: {
+                logger: {
+                  loggers: [logger],
+                },
+              },
+            });
+            expect(provider.updateStatus).toHaveBeenCalledWith('started');
+          });
+
+          test('calling stop which fails', async () => {
+            vi.mocked(macadamJSPackage.Macadam.prototype.stopVm).mockRejectedValue('an error');
+            assert(!!lifecycle.stop);
+            const logger = {} as extensionApi.Logger;
+            await expect(
+              lifecycle.stop({
+                log: logger,
+              }),
+            ).rejects.toThrowError('an error');
+          });
+
+          describe('calling stop which works correctly', async () => {
+            const logger = {} as extensionApi.Logger;
+            beforeEach(async () => {
+              assert(!!lifecycle.stop);
+              await lifecycle.stop({
+                log: logger,
+              });
+            });
+            test('stopVm is called and machine is registered as stopped', async () => {
+              expect(macadamJSPackage.Macadam.prototype.stopVm).toHaveBeenCalledOnce();
+              expect(macadamJSPackage.Macadam.prototype.stopVm).toHaveBeenCalledWith({
+                containerProvider: 'applehv',
+                name: 'vm1',
+                runOptions: {
+                  logger: {
+                    loggers: [logger],
+                  },
+                },
+              });
+              expect(provider.updateStatus).toHaveBeenCalledWith('stopped');
+            });
+
+            test('calling delete which fails', async () => {
+              vi.mocked(macadamJSPackage.Macadam.prototype.removeVm).mockRejectedValue('an error');
+              assert(!!lifecycle.delete);
+              await expect(lifecycle.delete()).rejects.toThrowError('an error');
+            });
+
+            describe('calling delete which works correctly', async () => {
+              beforeEach(async () => {
+                assert(!!lifecycle.delete);
+                await lifecycle.delete();
+              });
+              test('removeVm is called', async () => {
+                expect(macadamJSPackage.Macadam.prototype.removeVm).toHaveBeenCalledOnce();
+                expect(macadamJSPackage.Macadam.prototype.removeVm).toHaveBeenCalledWith({
+                  containerProvider: 'applehv',
+                  name: 'vm1',
+                  runOptions: {},
+                });
+              });
+            });
+          });
         });
       });
     });
@@ -314,6 +448,7 @@ bla bla
         },
       } as unknown as SubscriptionManagerClientV1;
       beforeEach(async () => {
+        vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([]);
         vi.mocked(extensionApi.env).isMac = false;
         vi.mocked(extensionApi.env).isWindows = true;
         vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
