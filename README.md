@@ -34,6 +34,87 @@ OCI Images to install the extensions are available at https://github.com/redhat-
 
 The latest development image is ghcr.io/redhat-developer/podman-desktop-rhel-ext:next
 
+## Troubleshooting
+
+**MacOS**
+
+If you encounter an error while creating or running a VM using this plugin, follow the
+steps below to diagnose and resolve the issue.
+
+### Check VM Provider
+
+Make sure you're using the `applehv` or `vfkit` provider instead of `libkrun`, as `libkrun` is currently unsupported by this plugin.
+
+To verify the provider in use:
+
+```bash
+cat $HOME/.config/containers/containers.conf
+```
+
+Look under the `[machine]` section for the active provider.
+
+### Run `macadam` with Debug Logs
+
+If you're still facing issues, run the `macadam` binary manually with debug logging enabled to get detailed output.
+
+### Verify VM Resource
+
+Check if the VM resource is already created:
+
+```bash
+/opt/macadam/bin/macadam list
+```
+
+Example output:
+
+```json
+[
+    {
+        "Name": "rhel-rhel",
+        "Image": "/Users/prkumar/.local/share/containers/macadam/machine/applehv/rhel-rhel-applehv.raw",
+        "Created": "2025-05-07T15:50:47.035136+05:30",
+        "Running": false,
+        "Starting": false,
+        "LastUp": "2025-05-07T16:07:21.542744+05:30",
+        "CPUs": 2,
+        "Memory": "4294967296",
+        "DiskSize": "21474836480",
+        "Port": 50988,
+        "RemoteUsername": "core",
+        "IdentityPath": "/Users/prkumar/.local/share/containers/macadam/machine/machine",
+        "VMType": "applehv"
+    }
+]
+```
+
+### Start VM with Debug Option
+
+Run the following command to start the VM with debug logging:
+
+```bash
+/opt/macadam/bin/macadam start rhel-rhel --log-level debug
+```
+
+Example debug output (indicating a socket-related error):
+
+```
+DEBU[...] socket length for /.../macadam/rhel-rhel-gvproxy.sock is 79
+DEBU[...] checking that "gvproxy" socket is ready
+DEBU[...] writing configuration file "/.../rhel-rhel.json"
+unable to connect to "gvproxy" socket at "/.../rhel-rhel-gvproxy.sock"
+```
+
+### Resolve Socket Issue and Retry
+
+To resolve the above issue:
+
+```bash
+rm -fr /var/folders/k9/gh0qglps52xgjgttb2skh9mh0000gn/T/macadam/
+/opt/macadam/bin/macadam start rhel-rhel --log-level debug
+```
+
+This should clear the temporary files and allow the VM to start successfully.
+
 ## Contributing
 
 Want to help develop and contribute to the RHEL VMs extension?
