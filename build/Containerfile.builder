@@ -23,7 +23,6 @@ USER default
 
 COPY package.json .
 COPY pnpm-lock.yaml .
-COPY .npmrc .
 
 RUN npm i -g ssh2@1.16.0 && \
     npm install --global pnpm@10 && \
