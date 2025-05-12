@@ -155,6 +155,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.tag.outputs.githubTag }}
 
       - name: Install qemu dependency
         run: |
