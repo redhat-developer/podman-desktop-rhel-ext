@@ -10,6 +10,9 @@
     "podman-desktop": ">=1.10.0"
   },
   "main": "./dist/extension.js",
+  "extensionDependencies": [
+    "redhat.redhat-authentication"
+  ],
   "contributes": {
     "configuration": {
       "title": "RHEL VMs",
