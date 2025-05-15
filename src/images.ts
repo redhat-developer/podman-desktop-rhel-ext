@@ -19,9 +19,9 @@
 import { arch } from 'node:os';
 
 const IMAGES: { [provider: string]: string } = {
-  applehv: '24f35ffb80911f2687f0bcd4237f62e46c19a6f0445aacb951b77d1974130187',
-  wsl: '1351d19fddb169ed01dc8815e9318027d27d7fe8c80e1844559ccd9c041ad9ca',
-  linux_native_x64: '9d11248599b91178a600202412ad3ffc6f1c75c050d7b3c5484dc3f46fc06582',
+  applehv: 'd32f05024821400932b3653647567abcd34dc03b4243d9a8ae5a11ecd11b1544',
+  wsl: 'dccb2abb166981fa7598e948f9cab029aa1775219f8249fd54760ddd0f2b8910',
+  linux_native_x64: '73473542ff4622524ae200ffabd4064bb2a7ff39ac40a012443a43d429d60019',
 };
 
 export function getImageSha(provider?: string): string {
