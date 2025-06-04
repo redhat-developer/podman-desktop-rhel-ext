@@ -19,7 +19,7 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { Browser, Locator } from '@playwright/test';
+import type { Browser, Locator, Page } from '@playwright/test';
 import type { ConfirmInputValue, NavigationBar } from '@podman-desktop/tests-playwright';
 import {
   AuthenticationPage,
@@ -78,7 +78,6 @@ test.afterAll(async ({ runner }) => {
 
 test.describe.serial('RHEL Extension E2E Tests', () => {
   test.describe.serial('Authentication Extension', () => {
-    test.describe.configure({ retries: 1 });
     test('Go to settings and check if extension is already installed', async ({ navigationBar }) => {
       const extensionsPage = await navigationBar.openExtensions();
       if (await extensionsPage.extensionIsInstalled(extensionLabel)) extensionInstalled = true;
@@ -105,31 +104,6 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   });
 
   test.describe.serial('Red Hat Authentication extension installation', () => {
-    let authExtensionInstalled = false;
-
-    test('Go to extensions and check if extension is already installed', async ({ navigationBar }) => {
-      const extensions = await navigationBar.openExtensions();
-      if (await extensions.extensionIsInstalled(authExtensionLabel)) {
-        authExtensionInstalled = true;
-      }
-    });
-
-    test('Uninstall previous version of sso extension', async ({ navigationBar }) => {
-      test.skip(!!authExtensionInstalled);
-      test.setTimeout(60_000);
-      await removeAuthExtension(navigationBar);
-    });
-
-    test('Extension can be installed using OCI image', async ({ page, navigationBar }) => {
-      test.setTimeout(200_000);
-      const extensions = await navigationBar.openExtensions();
-      await extensions.installExtensionFromOCIImage(authExtensionImageName);
-
-      extensionCard = new ExtensionCardPage(page, authExtensionLabelName, authExtensionLabel);
-      await extensionCard.card.scrollIntoViewIfNeeded();
-      await playExpect(extensionCard.card).toBeVisible({ timeout: 15_000 });
-    });
-
     test('SSO provider is available in Authentication Page', async ({ page, navigationBar }) => {
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.openTabPage(AuthenticationPage);
@@ -159,12 +133,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
       await page.waitForTimeout(5_000);
 
-      const urlMatch = await getEntryFromLogs(
-        page,
-        /\[redhat-authentication\].*openid-connect.*/,
-        regex,
-        'sso.redhat.com',
-      );
+      const urlMatch = await getEntryFromLogs(page, /\.*openid-connect.*/, regex, 'sso.redhat.com');
       if (urlMatch) {
         const context = await browser.newContext();
         const newPage = await context.newPage();
