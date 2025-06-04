@@ -20,11 +20,16 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { Browser, Locator, Page } from '@playwright/test';
-import type { ConfirmInputValue, NavigationBar } from '@podman-desktop/tests-playwright';
+import {
+  ConfirmInputValue,
+  NavigationBar,
+  ResourceConnectionCardPage,
+  ResourcesPage,
+  StatusBar,
+} from '@podman-desktop/tests-playwright';
 import {
   AuthenticationPage,
   expect as playExpect,
-  ExtensionCardPage,
   findPageWithTitleInBrowser,
   getEntryFromLogs,
   performBrowserLogin,
@@ -45,13 +50,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const browserOutputPath = [__dirname, '..', 'output', 'browser'];
 
-const authExtensionLabel = 'redhat.redhat-authentication';
-const authExtensionLabelName = 'redhat-authentication';
-const authProviderName = 'Red Hat SSO';
-const authExtensionImageName = 'ghcr.io/redhat-developer/podman-desktop-redhat-account-ext:latest';
 const expectedAuthPageTitle = 'Log In';
 const regex = new RegExp(/((http|https):\/\/.*$)/);
-let extensionCard: ExtensionCardPage;
 let signInButton: Locator;
 let browser: Browser;
 let chromiumPage: Page;
@@ -174,8 +174,14 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
     });
   });
 
-  test('Remove RHEL extension through Settings', async ({ navigationBar }) => {
-    await ensureRhelExtensionIsRemoved(navigationBar);
+  test.describe.serial('RHEL VMs Extension', () => {
+    test('Create RHEL VM', async ({ page }) => {
+      await createRhelVM(page);
+    });
+
+    test('Remove RHEL extension through Settings', async ({ navigationBar }) => {
+      await ensureRhelExtensionIsRemoved(navigationBar);
+    });
   });
 });
 
@@ -196,4 +202,18 @@ async function ensureRhelExtensionIsRemoved(navigationBar: NavigationBar): Promi
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
     .toBeFalsy();
+}
+
+async function createRhelVM(page: Page): Promise<void> {
+  const navigationBar = new NavigationBar(page);
+  const statusBar = new StatusBar(page);
+  const rhelResourceCard = new ResourceConnectionCardPage(page, 'RHEL VMs');
+
+  const settingsPage = await navigationBar.openSettings();
+  const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
+  await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
+  await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('RHEL VMs')).toBeTruthy();
+  await playExpect(rhelResourceCard.createButton).toBeVisible();
+
+  await rhelResourceCard.createButton.click();
 }
