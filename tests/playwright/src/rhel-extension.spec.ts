@@ -16,10 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { NavigationBar } from '@podman-desktop/tests-playwright';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import type { Browser, Locator } from '@playwright/test';
+import type { ConfirmInputValue, NavigationBar } from '@podman-desktop/tests-playwright';
 import {
+  AuthenticationPage,
   expect as playExpect,
+  ExtensionCardPage,
+  findPageWithTitleInBrowser,
+  getEntryFromLogs,
+  performBrowserLogin,
   RunnerOptions,
+  startChromium,
   test,
   waitForPodmanMachineStartup,
 } from '@podman-desktop/tests-playwright';
@@ -30,6 +40,22 @@ const extensionHeading = 'RHEL VMs';
 let extensionInstalled = false;
 const skipInstallation = process.env.SKIP_INSTALLATION;
 const extensionURL = process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-desktop-rhel-ext:next';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const browserOutputPath = [__dirname, '..', 'output', 'browser'];
+
+const authExtensionLabel = 'redhat.redhat-authentication';
+const authExtensionLabelName = 'redhat-authentication';
+const authProviderName = 'Red Hat SSO';
+const authExtensionImageName = 'ghcr.io/redhat-developer/podman-desktop-redhat-account-ext:latest';
+const expectedAuthPageTitle = 'Log In';
+const regex = new RegExp(/((http|https):\/\/.*$)/);
+let extensionCard: ExtensionCardPage;
+let signInButton: Locator;
+let browser: Browser;
+let chromiumPage: Page;
+const chromePort = '9222';
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -51,29 +77,132 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('RHEL Extension E2E Tests', () => {
-  test.describe.configure({ retries: 1 });
-  test('Go to settings and check if extension is already installed', async ({ navigationBar }) => {
-    const extensionsPage = await navigationBar.openExtensions();
-    if (await extensionsPage.extensionIsInstalled(extensionLabel)) extensionInstalled = true;
+  test.describe.serial('Authentication Extension', () => {
+    test.describe.configure({ retries: 1 });
+    test('Go to settings and check if extension is already installed', async ({ navigationBar }) => {
+      const extensionsPage = await navigationBar.openExtensions();
+      if (await extensionsPage.extensionIsInstalled(extensionLabel)) extensionInstalled = true;
+    });
+
+    test('Uninstalled previous version of rhel extension', async ({ navigationBar }) => {
+      test.skip(!extensionInstalled || !!skipInstallation);
+      test.setTimeout(120_000);
+      console.log('Extension found already installed, trying to remove!');
+      await ensureRhelExtensionIsRemoved(navigationBar);
+    });
+
+    test('Install extension through Extension page', async ({ navigationBar }) => {
+      test.skip(!!skipInstallation);
+      test.setTimeout(200_000);
+
+      const extensionsPage = await navigationBar.openExtensions();
+      await extensionsPage.installExtensionFromOCIImage(extensionURL);
+
+      await playExpect
+        .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
+        .toBeTruthy();
+    });
   });
 
-  test('Uninstalled previous version of rhel extension', async ({ navigationBar }) => {
-    test.skip(!extensionInstalled || !!skipInstallation);
-    test.setTimeout(120_000);
-    console.log('Extension found already installed, trying to remove!');
-    await ensureRhelExtensionIsRemoved(navigationBar);
-  });
+  test.describe.serial('Red Hat Authentication extension installation', () => {
+    let authExtensionInstalled = false;
 
-  test('Install extension through Extension page', async ({ navigationBar }) => {
-    test.skip(!!skipInstallation);
-    test.setTimeout(200_000);
+    test('Go to extensions and check if extension is already installed', async ({ navigationBar }) => {
+      const extensions = await navigationBar.openExtensions();
+      if (await extensions.extensionIsInstalled(authExtensionLabel)) {
+        authExtensionInstalled = true;
+      }
+    });
 
-    const extensionsPage = await navigationBar.openExtensions();
-    await extensionsPage.installExtensionFromOCIImage(extensionURL);
+    test('Uninstall previous version of sso extension', async ({ navigationBar }) => {
+      test.skip(!!authExtensionInstalled);
+      test.setTimeout(60_000);
+      await removeAuthExtension(navigationBar);
+    });
 
-    await playExpect
-      .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
-      .toBeTruthy();
+    test('Extension can be installed using OCI image', async ({ page, navigationBar }) => {
+      test.setTimeout(200_000);
+      const extensions = await navigationBar.openExtensions();
+      await extensions.installExtensionFromOCIImage(authExtensionImageName);
+
+      extensionCard = new ExtensionCardPage(page, authExtensionLabelName, authExtensionLabel);
+      await extensionCard.card.scrollIntoViewIfNeeded();
+      await playExpect(extensionCard.card).toBeVisible({ timeout: 15_000 });
+    });
+
+    test('SSO provider is available in Authentication Page', async ({ page, navigationBar }) => {
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.openTabPage(AuthenticationPage);
+
+      const authPage = new AuthenticationPage(page);
+      await playExpect(authPage.heading).toBeVisible({ timeout: 10_000 });
+
+      signInButton = page.getByRole('button', { name: 'Sign in' });
+      await playExpect(signInButton).toBeVisible();
+    });
+
+    test('Can open authentication page in browser', async ({ navigationBar, page }) => {
+      test.setTimeout(120_000);
+      const settingsBar = await navigationBar.openSettings();
+      await settingsBar.openTabPage(AuthenticationPage);
+      const authPage = new AuthenticationPage(page);
+      await playExpect(authPage.heading).toBeVisible({ timeout: 10_000 });
+
+      // start up chrome instance and return browser object
+      browser = await startChromium(chromePort, path.join(...browserOutputPath));
+
+      // open the link from PD
+      await page.bringToFront();
+
+      await playExpect(signInButton).toBeEnabled({ timeout: 10_000 });
+      await signInButton.click();
+
+      await page.waitForTimeout(5_000);
+
+      const urlMatch = await getEntryFromLogs(
+        page,
+        /\[redhat-authentication\].*openid-connect.*/,
+        regex,
+        'sso.redhat.com',
+      );
+      if (urlMatch) {
+        const context = await browser.newContext();
+        const newPage = await context.newPage();
+        await newPage.goto(urlMatch);
+        await newPage.waitForURL(/sso.redhat.com/);
+        chromiumPage = newPage;
+        const page = await findPageWithTitleInBrowser(browser, expectedAuthPageTitle);
+        console.log(`Found page with title: ${await page?.title()}`);
+      } else {
+        throw new Error('Did not find Initial SSO Login Page');
+      }
+    });
+
+    test('User can authenticate via browser', async () => {
+      // Activate the browser window and perform login
+      playExpect(chromiumPage).toBeDefined();
+      if (!chromiumPage) {
+        throw new Error('Chromium browser page was not initialized');
+      }
+      await chromiumPage.bringToFront();
+      console.log(`Switched to Chrome tab with title: ${await chromiumPage.title()}`);
+      const usernameAction: ConfirmInputValue = {
+        inputLocator: chromiumPage.getByRole('textbox', { name: 'Red Hat login or email' }),
+        inputValue: process.env.DVLPR_USERNAME ?? 'unknown',
+        confirmLocator: chromiumPage.getByRole('button', { name: 'Next' }),
+      };
+      const passwordAction: ConfirmInputValue = {
+        inputLocator: chromiumPage.getByRole('textbox', { name: 'Password' }),
+        inputValue: process.env.DVLPR_PASSWORD ?? 'unknown',
+        confirmLocator: chromiumPage.getByRole('button', { name: 'Log in' }),
+      };
+      await performBrowserLogin(chromiumPage, /Log In/, usernameAction, passwordAction, async chromiumPage => {
+        const backButton = chromiumPage.getByRole('button', { name: 'Go back to Podman Desktop' });
+        await playExpect(backButton).toBeEnabled();
+        await backButton.click();
+      });
+      await chromiumPage.close();
+    });
   });
 
   test('Remove RHEL extension through Settings', async ({ navigationBar }) => {
@@ -97,5 +226,15 @@ async function ensureRhelExtensionIsRemoved(navigationBar: NavigationBar): Promi
 
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
+    .toBeFalsy();
+}
+
+async function removeAuthExtension(navBar: NavigationBar): Promise<void> {
+  const extensions = await navBar.openExtensions();
+  const authCard = await extensions.getInstalledExtension(authExtensionLabelName, authExtensionLabel);
+  await authCard.disableExtension();
+  await authCard.removeExtension();
+  await playExpect
+    .poll(async () => await extensions.extensionIsInstalled(authExtensionLabel), { timeout: 30_000 })
     .toBeFalsy();
 }
