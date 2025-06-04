@@ -197,13 +197,3 @@ async function ensureRhelExtensionIsRemoved(navigationBar: NavigationBar): Promi
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
     .toBeFalsy();
 }
-
-async function removeAuthExtension(navBar: NavigationBar): Promise<void> {
-  const extensions = await navBar.openExtensions();
-  const authCard = await extensions.getInstalledExtension(authExtensionLabelName, authExtensionLabel);
-  await authCard.disableExtension();
-  await authCard.removeExtension();
-  await playExpect
-    .poll(async () => await extensions.extensionIsInstalled(authExtensionLabel), { timeout: 30_000 })
-    .toBeFalsy();
-}
