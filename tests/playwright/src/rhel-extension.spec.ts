@@ -20,25 +20,23 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { Browser, Locator, Page } from '@playwright/test';
-import {
-  ConfirmInputValue,
-  NavigationBar,
-  ResourceConnectionCardPage,
-  ResourceElementActions,
-  ResourceElementState,
-  ResourcesPage,
-  waitUntil,
-} from '@podman-desktop/tests-playwright';
+import type { ConfirmInputValue } from '@podman-desktop/tests-playwright';
 import {
   AuthenticationPage,
   expect as playExpect,
   findPageWithTitleInBrowser,
   getEntryFromLogs,
+  NavigationBar,
   performBrowserLogin,
+  ResourceConnectionCardPage,
+  ResourceElementActions,
+  ResourceElementState,
+  ResourcesPage,
   RunnerOptions,
   startChromium,
   test,
   waitForPodmanMachineStartup,
+  waitUntil,
 } from '@podman-desktop/tests-playwright';
 
 const extensionName = 'rhel-vms';
