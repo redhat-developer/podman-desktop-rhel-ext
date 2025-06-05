@@ -24,8 +24,10 @@ import {
   ConfirmInputValue,
   NavigationBar,
   ResourceConnectionCardPage,
+  ResourceElementActions,
+  ResourceElementState,
   ResourcesPage,
-  StatusBar,
+  waitUntil,
 } from '@podman-desktop/tests-playwright';
 import {
   AuthenticationPage,
@@ -177,11 +179,49 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   test.describe.serial('RHEL VMs Extension', () => {
     test('Create RHEL VM', async ({ page }) => {
       await createRhelVM(page);
+
+      const resourcesPage = new ResourcesPage(page);
+      await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
+
+      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      await playExpect.poll(async () => machineCard.doesResourceElementExist(), { timeout: 30_000 }).toBeTruthy();
+      playExpect(await machineCard.resourceElementConnectionStatus.innerText()).toContain(ResourceElementState.Off);
     });
 
-    test('Remove RHEL extension through Settings', async ({ navigationBar }) => {
-      await ensureRhelExtensionIsRemoved(navigationBar);
+    test('Start RHEL VM', async ({ page }) => {
+      test.setTimeout(70_000);
+      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      await machineCard.performConnectionAction(ResourceElementActions.Start);
+
+      await waitUntil(
+        async () =>
+          (await machineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Running),
+        { timeout: 60_000, sendError: true },
+      );
     });
+
+    test('Stop RHEL VM', async ({ page }) => {
+      test.setTimeout(70_000);
+      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      await machineCard.performConnectionAction(ResourceElementActions.Stop);
+
+      await waitUntil(
+        async () => (await machineCard.resourceElementConnectionStatus.innerText()).includes(ResourceElementState.Off),
+        { timeout: 30_000, sendError: true },
+      );
+    });
+
+    test('Remove RHEL VM', async ({ page }) => {
+      test.setTimeout(70_000);
+      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      await machineCard.performConnectionAction(ResourceElementActions.Delete);
+
+      await playExpect.poll(async () => machineCard.doesResourceElementExist(), { timeout: 30_000 }).toBeFalsy();
+    });
+  });
+
+  test('Remove RHEL extension through Settings', async ({ navigationBar }) => {
+    await ensureRhelExtensionIsRemoved(navigationBar);
   });
 });
 
@@ -204,16 +244,27 @@ async function ensureRhelExtensionIsRemoved(navigationBar: NavigationBar): Promi
     .toBeFalsy();
 }
 
-async function createRhelVM(page: Page): Promise<void> {
+async function createRhelVM(page: Page, timeout = 120_000): Promise<void> {
   const navigationBar = new NavigationBar(page);
-  const statusBar = new StatusBar(page);
-  const rhelResourceCard = new ResourceConnectionCardPage(page, 'RHEL VMs');
+  const rhelResourceCard = new ResourceConnectionCardPage(page, 'macadam');
 
   const settingsPage = await navigationBar.openSettings();
   const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
   await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
-  await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('RHEL VMs')).toBeTruthy();
+  await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('macadam')).toBeTruthy();
   await playExpect(rhelResourceCard.createButton).toBeVisible();
 
   await rhelResourceCard.createButton.click();
+
+  const rhelVMNameInput = page.getByLabel('Machine Name', { exact: true });
+  await playExpect(rhelVMNameInput).toBeVisible({ timeout: 10_000 });
+  await playExpect(rhelVMNameInput).toHaveValue('rhel');
+
+  const createRhelVMButton = page.getByRole('button', { name: 'Create', exact: true });
+  await playExpect(createRhelVMButton).toBeEnabled({ timeout: 10_000 });
+  await createRhelVMButton.click();
+
+  const goBackButton = page.getByRole('button', { name: 'Go back to resources' });
+  await playExpect(goBackButton).toBeEnabled({ timeout: timeout });
+  await goBackButton.click();
 }
