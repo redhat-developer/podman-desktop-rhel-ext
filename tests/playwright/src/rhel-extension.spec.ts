@@ -176,7 +176,8 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
   test.describe.serial('RHEL VMs Extension', () => {
     test('Create RHEL VM', async ({ page }) => {
-      await createRhelVM(page);
+      test.setTimeout(310_000);
+      await createRhelVM(page, 300_000);
 
       const resourcesPage = new ResourcesPage(page);
       await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
