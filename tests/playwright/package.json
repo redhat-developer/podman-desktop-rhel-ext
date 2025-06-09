@@ -1,20 +1,19 @@
 {
-    "name": "rhel-extension-tests-playwright",
-    "version": "0.0.1",
-    "description": "Podman Desktop RHEL extension Playwright E2E tests",
-    "type": "module",
-    "scripts": {
-      "test:e2e:setup": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' --",
-      "test:e2e": "npm run test:e2e:setup npx playwright test src/"
-    },
-    "author": "Red Hat",
-    "license": "Apache-2.0",
-    "devDependencies": {
-      "@playwright/test": "1.52.0",
-      "@podman-desktop/tests-playwright": "1.18.0",
-      "@types/node": "^22",
-      "electron": "^35.2.0",
-      "typescript": "^5.8.3",
-      "xvfb-maybe": "^0.2.1"
-    }
+  "name": "rhel-extension-tests-playwright",
+  "version": "0.0.1",
+  "description": "Podman Desktop RHEL extension Playwright E2E tests",
+  "type": "module",
+  "scripts": {
+    "test:e2e:setup": "xvfb-maybe --auto-servernum --server-args='-screen 0 1280x960x24' --",
+    "test:e2e": "npm run test:e2e:setup npx playwright test src/"
+  },
+  "author": "Red Hat",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@playwright/test": "1.52.0",
+    "@podman-desktop/tests-playwright": "^1.20.0-202506090707-3710421455f",
+    "@types/node": "^22",
+    "typescript": "^5.8.3",
+    "xvfb-maybe": "^0.2.1"
   }
+}
