@@ -23,12 +23,20 @@
           "default": "rhel",
           "description": "Machine Name"
         },
+        "macadam.factory.machine.image": {
+          "type": "string",
+          "enum": ["RHEL 10", "local image on disk"],
+          "scope": "VmProviderConnectionFactory",
+          "default": "RHEL 10",
+          "description": "Image to download"
+        },
         "macadam.factory.machine.image-path": {
           "type": "string",
           "format": "file",
           "scope": "VmProviderConnectionFactory",
           "default": "",
-          "description": "Image Path (Optional)"
+          "description": "Image Path",
+          "when": "macadam.localImage"
         },
         "macadam.factory.machine.cpus": {
           "type": "number",

@@ -17,13 +17,13 @@
  ***********************************************************************/
 
 import { existsSync } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
-import { resolve } from 'node:path';
 
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
 import { initAuthentication } from './authentication';
+import { ImageCache } from './cache';
+import { MACADAM_IMAGE_PROPERTY_KEY, MACADAM_IMAGE_PROPERTY_VALUE_LOCAL, MACADAM_LOCAL_IMAGE_KEY } from './constants';
 import { getImageSha } from './images';
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
@@ -411,6 +411,9 @@ async function monitorMachines(provider: extensionApi.Provider, context: extensi
 }
 
 async function createProvider(extensionContext: extensionApi.ExtensionContext): Promise<extensionApi.Provider> {
+  const imageCache = new ImageCache(extensionContext.storagePath);
+  await imageCache.init();
+
   const providerOptions: extensionApi.ProviderOptions = {
     name: 'RHEL VMs',
     id: 'macadam',
@@ -430,22 +433,27 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
   extensionContext.subscriptions.push(provider);
 
   // enable factory
-  provider.setVmProviderConnectionFactory({
-    create: (
-      params: { [key: string]: unknown },
-      logger?: extensionApi.Logger,
-      token?: extensionApi.CancellationToken,
-    ) => {
-      return createVM(extensionContext, params, logger, token);
+  provider.setVmProviderConnectionFactory(
+    {
+      create: (
+        params: { [key: string]: unknown },
+        logger?: extensionApi.Logger,
+        token?: extensionApi.CancellationToken,
+      ) => {
+        return createVM(imageCache, params, logger, token);
+      },
+      creationDisplayName: 'Virtual machine',
     },
-    creationDisplayName: 'Virtual machine',
-  });
+    {
+      auditItems,
+    },
+  );
 
   return provider;
 }
 
 async function createVM(
-  extensionContext: extensionApi.ExtensionContext,
+  imageCache: ImageCache,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
   logger?: extensionApi.Logger,
@@ -475,15 +483,21 @@ async function createVM(
   // name
   const name = params['macadam.factory.machine.name'];
 
+  // image
+  const imageValue = params[MACADAM_IMAGE_PROPERTY_KEY];
+  if (imageValue && typeof imageValue !== 'string') {
+    throw new Error('image must be a string');
+  }
+  const image = imageValue === MACADAM_IMAGE_PROPERTY_VALUE_LOCAL ? undefined : imageValue;
+
   // image-path
   let imagePath = params['macadam.factory.machine.image-path'];
   if (imagePath) {
     telemetryRecords.imagePath = 'custom';
   }
 
-  if (!imagePath) {
-    const cachedImageDir = resolve(extensionContext.storagePath, 'images');
-    const cachedImagePath = resolve(cachedImageDir, 'image');
+  if (image) {
+    const cachedImagePath = imageCache.getPath(image);
     if (existsSync(cachedImagePath)) {
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'cached';
@@ -491,7 +505,6 @@ async function createVM(
     } else {
       const client = await initAuthentication();
       const imageSha = getImageSha(provider);
-      await mkdir(cachedImageDir, { recursive: true });
       logger?.log('Downloading image, please wait...\n');
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath, logger, token);
       logger?.log(`Image downloaded\n`);
@@ -536,4 +549,12 @@ function updateWSLHyperVEnabledContextValue(value: boolean): void {
 export function deactivate(): void {
   stopLoop = true;
   console.log('stopping macadam extension');
+}
+
+async function auditItems(items: extensionApi.AuditRequestItems): Promise<extensionApi.AuditResult> {
+  const image = items[MACADAM_IMAGE_PROPERTY_KEY];
+  extensionApi.context.setValue(MACADAM_LOCAL_IMAGE_KEY, image === MACADAM_IMAGE_PROPERTY_VALUE_LOCAL);
+  return {
+    records: [],
+  };
 }
