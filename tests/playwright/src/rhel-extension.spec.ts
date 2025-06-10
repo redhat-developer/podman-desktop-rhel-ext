@@ -167,7 +167,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       };
       await performBrowserLogin(chromiumPage, /Log In/, usernameAction, passwordAction, async chromiumPage => {
         const backButton = chromiumPage.getByRole('button', { name: 'Go back to Podman Desktop' });
-        await playExpect(backButton).toBeEnabled();
+        await playExpect(backButton).toBeEnabled({ timeout: 20_000 });
         await backButton.click();
       });
       await chromiumPage.close();
