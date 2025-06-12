@@ -18,6 +18,9 @@
 
 export const MACADAM_IMAGE_PROPERTY_KEY = 'macadam.factory.machine.image';
 export const MACADAM_IMAGE_PROPERTY_VALUE_LOCAL = 'local image on disk';
-export const MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10 = 'RHEL 10';
+
+// Must match enumed value for macadam.factory.machine.image in package.json
+export const MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10 = 'RHEL 10.0';
+export const MACADAM_IMAGE_PROPERTY_VALUE_RHEL_9 = 'RHEL 9.6';
 
 export const MACADAM_LOCAL_IMAGE_KEY = 'macadam.localImage';

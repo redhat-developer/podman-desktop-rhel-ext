@@ -504,7 +504,7 @@ async function createVM(
       logger?.log(`Using image cached in ${cachedImagePath}\n`);
     } else {
       const client = await initAuthentication();
-      const imageSha = getImageSha(provider);
+      const imageSha = getImageSha(provider, image);
       logger?.log('Downloading image, please wait...\n');
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath, logger, token);
       logger?.log(`Image downloaded\n`);
