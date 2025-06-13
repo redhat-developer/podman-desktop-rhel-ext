@@ -496,9 +496,15 @@ async function createVM(
     telemetryRecords.imagePath = 'custom';
   }
 
+  // force-download
+  const forceDownload = params['macadam.factory.machine.force-download'] ?? false;
+  if (typeof forceDownload !== 'boolean') {
+    throw new Error('force-download must be a boolean');
+  }
+
   if (image) {
     const cachedImagePath = imageCache.getPath(image);
-    if (existsSync(cachedImagePath)) {
+    if (!forceDownload && existsSync(cachedImagePath)) {
       imagePath = cachedImagePath;
       telemetryRecords.imagePath = 'cached';
       logger?.log(`Using image cached in ${cachedImagePath}\n`);
