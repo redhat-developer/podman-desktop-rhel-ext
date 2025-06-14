@@ -144,6 +144,20 @@ describe('activate', () => {
         expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
       });
 
+      test('RHEL image is pulled when download is forced, not considering if image is cached', async () => {
+        vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
+          resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
+        );
+        await create({
+          'macadam.factory.machine.image': 'RHEL 10',
+          'macadam.factory.machine.force-download': true,
+        });
+        // cache is not checked
+        expect(fs.existsSync).not.toHaveBeenCalled();
+        // image is pulled
+        expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
+      });
+
       test('RHEL image is not pulled when image is cached', async () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),

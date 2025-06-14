@@ -30,6 +30,13 @@
           "default": "RHEL 10",
           "description": "Image to download"
         },
+        "macadam.factory.machine.force-download": {
+          "type": "boolean",
+          "scope": "VmProviderConnectionFactory",
+          "default": false,
+          "description": "Force download image, do not get from cache",
+          "when": "!macadam.localImage"
+        },
         "macadam.factory.machine.image-path": {
           "type": "string",
           "format": "file",
