@@ -23,7 +23,11 @@ import * as extensionApi from '@podman-desktop/api';
 
 import { initAuthentication } from './authentication';
 import { ImageCache } from './cache';
-import { MACADAM_IMAGE_PROPERTY_KEY, MACADAM_IMAGE_PROPERTY_VALUE_LOCAL, MACADAM_LOCAL_IMAGE_KEY } from './constants';
+import {
+  RHEL_VMS_IMAGE_PROPERTY_KEY,
+  RHEL_VMS_IMAGE_PROPERTY_VALUE_LOCAL,
+  RHEL_VMS_LOCAL_IMAGE_KEY,
+} from './constants';
 import { getImageSha } from './images';
 import { LoggerDelegator } from './logger';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
@@ -42,7 +46,7 @@ const macadamMachinesInfo = new Map<string, MachineInfo>();
 const currentConnections = new Map<string, extensionApi.Disposable>();
 
 let wslAndHypervEnabledContextValue = false;
-const WSL_HYPERV_ENABLED_KEY = 'macadam.wslHypervEnabled';
+const WSL_HYPERV_ENABLED_KEY = 'rhel-vms.wslHypervEnabled';
 
 const listeners = new Set<StatusHandler>();
 
@@ -183,7 +187,7 @@ async function startMachine(
   logger?: extensionApi.Logger,
 ): Promise<void> {
   const telemetryRecords: Record<string, unknown> = {};
-  telemetryRecords.provider = 'macadam';
+  telemetryRecords.provider = 'rhel-vms';
   const startTime = performance.now();
 
   try {
@@ -214,7 +218,7 @@ async function stopMachine(
 ): Promise<void> {
   const startTime = performance.now();
   const telemetryRecords: Record<string, unknown> = {};
-  telemetryRecords.provider = 'macadam';
+  telemetryRecords.provider = 'rhel-vms';
   try {
     await macadam.stopVm({
       name: machineInfo.name,
@@ -269,7 +273,7 @@ async function registerProviderFor(
   provider.updateStatus('ready');
 
   // get configuration for this connection
-  const vmConfiguration = extensionApi.configuration.getConfiguration('macadam', vmProviderConnection);
+  const vmConfiguration = extensionApi.configuration.getConfiguration('rhel-vms', vmProviderConnection);
 
   // Set values for the machine
   await vmConfiguration.update('machine.cpus', machineInfo.cpus);
@@ -416,7 +420,7 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
 
   const providerOptions: extensionApi.ProviderOptions = {
     name: 'RHEL VMs',
-    id: 'macadam',
+    id: 'rhel-vms',
     status: 'unknown',
     images: {
       icon: './icon.png',
@@ -467,8 +471,8 @@ async function createVM(
   }
 
   let provider: 'wsl' | 'hyperv' | 'applehv' | undefined;
-  if (params['macadam.factory.machine.win.provider']) {
-    provider = params['macadam.factory.machine.win.provider'];
+  if (params['rhel-vms.factory.machine.win.provider']) {
+    provider = params['rhel-vms.factory.machine.win.provider'];
     telemetryRecords.provider = provider;
   } else {
     if (extensionApi.env.isWindows) {
@@ -481,23 +485,23 @@ async function createVM(
   }
 
   // name
-  const name = params['macadam.factory.machine.name'];
+  const name = params['rhel-vms.factory.machine.name'];
 
   // image
-  const imageValue = params[MACADAM_IMAGE_PROPERTY_KEY];
+  const imageValue = params[RHEL_VMS_IMAGE_PROPERTY_KEY];
   if (imageValue && typeof imageValue !== 'string') {
     throw new Error('image must be a string');
   }
-  const image = imageValue === MACADAM_IMAGE_PROPERTY_VALUE_LOCAL ? undefined : imageValue;
+  const image = imageValue === RHEL_VMS_IMAGE_PROPERTY_VALUE_LOCAL ? undefined : imageValue;
 
   // image-path
-  let imagePath = params['macadam.factory.machine.image-path'];
+  let imagePath = params['rhel-vms.factory.machine.image-path'];
   if (imagePath) {
     telemetryRecords.imagePath = 'custom';
   }
 
   // force-download
-  const forceDownload = params['macadam.factory.machine.force-download'] ?? false;
+  const forceDownload = params['rhel-vms.factory.machine.force-download'] ?? false;
   if (typeof forceDownload !== 'boolean') {
     throw new Error('force-download must be a boolean');
   }
@@ -554,12 +558,12 @@ function updateWSLHyperVEnabledContextValue(value: boolean): void {
 
 export function deactivate(): void {
   stopLoop = true;
-  console.log('stopping macadam extension');
+  console.log('stopping RHEL VMs extension');
 }
 
 async function auditItems(items: extensionApi.AuditRequestItems): Promise<extensionApi.AuditResult> {
-  const image = items[MACADAM_IMAGE_PROPERTY_KEY];
-  extensionApi.context.setValue(MACADAM_LOCAL_IMAGE_KEY, image === MACADAM_IMAGE_PROPERTY_VALUE_LOCAL);
+  const image = items[RHEL_VMS_IMAGE_PROPERTY_KEY];
+  extensionApi.context.setValue(RHEL_VMS_LOCAL_IMAGE_KEY, image === RHEL_VMS_IMAGE_PROPERTY_VALUE_LOCAL);
   return {
     records: [],
   };
