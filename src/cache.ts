@@ -19,14 +19,14 @@
 import { mkdir, readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { MACADAM_IMAGE_PROPERTY_VALUE_RHEL_9, MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10 } from './constants';
+import { RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9, RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10 } from './constants';
 
 export class ImageCache {
   #cachedImageDir: string;
 
   #cachedImageNames: Record<string, string> = {
-    [MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10]: 'rhel10_0',
-    [MACADAM_IMAGE_PROPERTY_VALUE_RHEL_9]: 'rhel9_6',
+    [RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10]: 'rhel10_0',
+    [RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9]: 'rhel9_6',
   };
 
   constructor(storagePath: string) {

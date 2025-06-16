@@ -137,7 +137,7 @@ describe('activate', () => {
         );
         vi.mocked(fs.existsSync).mockReturnValue(false);
         await create({
-          'macadam.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.image': 'RHEL 10',
         });
         expect(fs.existsSync).toHaveBeenCalledTimes(1);
         expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
@@ -149,8 +149,8 @@ describe('activate', () => {
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
         await create({
-          'macadam.factory.machine.image': 'RHEL 10',
-          'macadam.factory.machine.force-download': true,
+          'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.force-download': true,
         });
         // cache is not checked
         expect(fs.existsSync).not.toHaveBeenCalled();
@@ -164,7 +164,7 @@ describe('activate', () => {
         );
         vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
-          'macadam.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.image': 'RHEL 10',
         });
         expect(fs.existsSync).toHaveBeenCalledTimes(1);
         expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
@@ -177,8 +177,8 @@ describe('activate', () => {
         );
         vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
-          'macadam.factory.machine.name': 'name1',
-          'macadam.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.name': 'name1',
+          'rhel-vms.factory.machine.image': 'RHEL 10',
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'applehv',
@@ -192,9 +192,9 @@ describe('activate', () => {
       test('createVm is called with provided image path', async () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
-          'macadam.factory.machine.image': 'local image on disk',
-          'macadam.factory.machine.name': 'name1',
-          'macadam.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
+          'rhel-vms.factory.machine.image': 'local image on disk',
+          'rhel-vms.factory.machine.name': 'name1',
+          'rhel-vms.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'applehv',
@@ -225,7 +225,7 @@ describe('activate', () => {
         );
         vi.mocked(fs.existsSync).mockReturnValue(false);
         await create({
-          'macadam.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.image': 'RHEL 10',
         });
         expect(fs.existsSync).toHaveBeenCalledTimes(1);
         expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
@@ -238,7 +238,7 @@ describe('activate', () => {
         );
         vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
-          'macadam.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.image': 'RHEL 10',
         });
         expect(fs.existsSync).toHaveBeenCalledTimes(1);
         expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
@@ -251,8 +251,8 @@ describe('activate', () => {
         );
         vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
-          'macadam.factory.machine.name': 'name1',
-          'macadam.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.name': 'name1',
+          'rhel-vms.factory.machine.image': 'RHEL 10',
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'wsl',
@@ -266,9 +266,9 @@ describe('activate', () => {
       test('createVm is called with provided image path', async () => {
         vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
-          'macadam.factory.machine.image': 'local image on disk',
-          'macadam.factory.machine.name': 'name1',
-          'macadam.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
+          'rhel-vms.factory.machine.image': 'local image on disk',
+          'rhel-vms.factory.machine.name': 'name1',
+          'rhel-vms.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'wsl',
@@ -296,7 +296,7 @@ describe('activate', () => {
       test('hyperv is not supported', async () => {
         await expect(
           create({
-            'macadam.factory.machine.image': 'RHEL 10',
+            'rhel-vms.factory.machine.image': 'RHEL 10',
           }),
         ).rejects.toThrowError('provider hyperv is not supported');
       });
@@ -312,7 +312,7 @@ describe('activate', () => {
       test('calling create fails', async () => {
         await expect(
           create({
-            'macadam.factory.machine.image': 'RHEL 10',
+            'rhel-vms.factory.machine.image': 'RHEL 10',
           }),
         ).rejects.toThrowError('an init error');
       });

@@ -17,35 +17,35 @@
     "configuration": {
       "title": "RHEL VMs",
       "properties": {
-        "macadam.factory.machine.name": {
+        "rhel-vms.factory.machine.name": {
           "type": "string",
           "scope": "VmProviderConnectionFactory",
           "default": "rhel",
           "description": "Machine Name"
         },
-        "macadam.factory.machine.image": {
+        "rhel-vms.factory.machine.image": {
           "type": "string",
           "enum": ["RHEL 10.0", "RHEL 9.6", "local image on disk"],
           "scope": "VmProviderConnectionFactory",
           "default": "RHEL 10.0",
           "description": "Image to download"
         },
-        "macadam.factory.machine.force-download": {
+        "rhel-vms.factory.machine.force-download": {
           "type": "boolean",
           "scope": "VmProviderConnectionFactory",
           "default": false,
           "description": "Force download image, do not get from cache",
-          "when": "!macadam.localImage"
+          "when": "!rhel-vms.localImage"
         },
-        "macadam.factory.machine.image-path": {
+        "rhel-vms.factory.machine.image-path": {
           "type": "string",
           "format": "file",
           "scope": "VmProviderConnectionFactory",
           "default": "",
           "description": "Image Path",
-          "when": "macadam.localImage"
+          "when": "rhel-vms.localImage"
         },
-        "macadam.factory.machine.cpus": {
+        "rhel-vms.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",
           "default": "HOST_HALF_CPU_CORES",
@@ -54,7 +54,7 @@
           "scope": "VmProviderConnectionFactory",
           "description": "CPU(s)"
         },
-        "macadam.factory.machine.memory": {
+        "rhel-vms.factory.machine.memory": {
           "type": "number",
           "format": "memory",
           "minimum": 1000000000,
@@ -64,7 +64,7 @@
           "step": 500000000,
           "description": "Memory"
         },
-        "macadam.factory.machine.diskSize": {
+        "rhel-vms.factory.machine.diskSize": {
           "type": "number",
           "format": "diskSize",
           "default": 100000000000,
@@ -74,7 +74,7 @@
           "scope": "VmProviderConnectionFactory",
           "description": "Disk size"
         },
-        "macadam.factory.machine.win.provider": {
+        "rhel-vms.factory.machine.win.provider": {
           "type": "string",
           "default": "wsl",
           "enum": [
@@ -83,7 +83,7 @@
           ],
           "scope": "VmProviderConnectionFactory",
           "description": "Provider Type",
-          "when": "macadam.wslHypervEnabled"
+          "when": "rhel-vms.wslHypervEnabled"
         }
       }
     }

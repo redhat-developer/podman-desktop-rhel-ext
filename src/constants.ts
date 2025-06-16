@@ -16,11 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export const MACADAM_IMAGE_PROPERTY_KEY = 'macadam.factory.machine.image';
-export const MACADAM_IMAGE_PROPERTY_VALUE_LOCAL = 'local image on disk';
+export const RHEL_VMS_IMAGE_PROPERTY_KEY = 'rhel-vms.factory.machine.image';
+export const RHEL_VMS_IMAGE_PROPERTY_VALUE_LOCAL = 'local image on disk';
 
-// Must match enumed value for macadam.factory.machine.image in package.json
-export const MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10 = 'RHEL 10.0';
-export const MACADAM_IMAGE_PROPERTY_VALUE_RHEL_9 = 'RHEL 9.6';
+// Must match enumed value for rhel-vms.factory.machine.image in package.json
+export const RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10 = 'RHEL 10.0';
+export const RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9 = 'RHEL 9.6';
 
-export const MACADAM_LOCAL_IMAGE_KEY = 'macadam.localImage';
+export const RHEL_VMS_LOCAL_IMAGE_KEY = 'rhel-vms.localImage';
