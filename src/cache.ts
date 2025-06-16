@@ -16,17 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { existsSync } from 'node:fs';
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir, readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10 } from './constants';
+import { MACADAM_IMAGE_PROPERTY_VALUE_RHEL_9, MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10 } from './constants';
 
 export class ImageCache {
   #cachedImageDir: string;
 
   #cachedImageNames: Record<string, string> = {
-    [MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10]: 'rhel10',
+    [MACADAM_IMAGE_PROPERTY_VALUE_RHEL_10]: 'rhel10_0',
+    [MACADAM_IMAGE_PROPERTY_VALUE_RHEL_9]: 'rhel9_6',
   };
 
   constructor(storagePath: string) {
@@ -34,15 +34,20 @@ export class ImageCache {
   }
 
   async init(): Promise<void> {
-    await this.cleanupv1();
+    await this.cleanup();
     await mkdir(this.#cachedImageDir, { recursive: true });
   }
 
-  // v1 supported only 1 image, cached as `images/image`
-  async cleanupv1(): Promise<void> {
-    const imagePath = resolve(this.#cachedImageDir, 'image');
-    if (existsSync(imagePath)) {
-      await rm(imagePath);
+  // delete all files not listed in cachedImageNames
+  async cleanup(): Promise<void> {
+    const possibleValues = Object.values(this.#cachedImageNames);
+    const files = await readdir(this.#cachedImageDir, { recursive: false, withFileTypes: true });
+    for (const file of files) {
+      if (!file.isFile() || possibleValues.includes(file.name)) {
+        continue;
+      }
+      console.log('deleting unused image from cache', resolve(file.parentPath, file.name));
+      await rm(resolve(file.parentPath, file.name));
     }
   }
 
