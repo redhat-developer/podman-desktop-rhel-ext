@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Dirent } from 'node:fs';
+import type { Dirent, ObjectEncodingOptions, PathLike } from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -31,7 +31,15 @@ test('images/image and images/rhel9_5 are deleted during init if they exist, rhe
   const cachePath = resolve('/', 'path', 'to', 'cache');
   const cache = new ImageCache(cachePath);
 
-  vi.mocked(fsPromises.readdir).mockResolvedValue([
+  vi.mocked<
+    (
+      path: PathLike,
+      options: ObjectEncodingOptions & {
+        withFileTypes: true;
+        recursive: false;
+      },
+    ) => Promise<Dirent<string>[]>
+  >(fsPromises.readdir).mockResolvedValue([
     {
       name: 'image',
       parentPath: resolve(cachePath, 'images'),
