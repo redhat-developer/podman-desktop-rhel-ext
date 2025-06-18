@@ -34,8 +34,8 @@ export class ImageCache {
   }
 
   async init(): Promise<void> {
-    await this.cleanup();
     await mkdir(this.#cachedImageDir, { recursive: true });
+    await this.cleanup();
   }
 
   // delete all files not listed in cachedImageNames
