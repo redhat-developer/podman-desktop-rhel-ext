@@ -15,12 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-
-import * as fs from 'node:fs';
 import { resolve } from 'node:path';
 
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
+import { vol } from 'memfs';
 import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as authentication from './authentication';
@@ -58,6 +57,7 @@ vi.mock('./macadam-machine-stream.js', async () => {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vol.reset();
 });
 
 describe('activate', () => {
@@ -135,12 +135,9 @@ describe('activate', () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
-        vi.mocked(fs.existsSync).mockReturnValue(false);
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
         });
-        expect(fs.existsSync).toHaveBeenCalledTimes(1);
-        expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
         expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
       });
 
@@ -152,8 +149,9 @@ describe('activate', () => {
           'rhel-vms.factory.machine.image': 'RHEL 10',
           'rhel-vms.factory.machine.force-download': true,
         });
-        // cache is not checked
-        expect(fs.existsSync).not.toHaveBeenCalled();
+        vol.fromJSON({
+          '/path/to/storage/images/rhel10': '',
+        });
         // image is pulled
         expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
       });
@@ -162,12 +160,12 @@ describe('activate', () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
-        vi.mocked(fs.existsSync).mockReturnValue(true);
+        vol.fromJSON({
+          '/path/to/storage/images/rhel10': '',
+        });
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
         });
-        expect(fs.existsSync).toHaveBeenCalledTimes(1);
-        expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
         expect(utils.pullImageFromRedHatRegistry).not.toHaveBeenCalled();
       });
 
@@ -175,7 +173,6 @@ describe('activate', () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
-        vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
           'rhel-vms.factory.machine.name': 'name1',
           'rhel-vms.factory.machine.image': 'RHEL 10',
@@ -190,7 +187,6 @@ describe('activate', () => {
       });
 
       test('createVm is called with provided image path', async () => {
-        vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
           'rhel-vms.factory.machine.image': 'local image on disk',
           'rhel-vms.factory.machine.name': 'name1',
@@ -223,12 +219,9 @@ describe('activate', () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
-        vi.mocked(fs.existsSync).mockReturnValue(false);
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
         });
-        expect(fs.existsSync).toHaveBeenCalledTimes(1);
-        expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
         expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
       });
 
@@ -236,12 +229,12 @@ describe('activate', () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
-        vi.mocked(fs.existsSync).mockReturnValue(true);
+        vol.fromJSON({
+          '/path/to/storage/images/rhel10': '',
+        });
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
         });
-        expect(fs.existsSync).toHaveBeenCalledTimes(1);
-        expect(fs.existsSync).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'));
         expect(utils.pullImageFromRedHatRegistry).not.toHaveBeenCalled();
       });
 
@@ -249,7 +242,6 @@ describe('activate', () => {
         vi.mocked(ImageCache.prototype.getPath).mockReturnValue(
           resolve('/', 'path', 'to', 'storage', 'images', 'rhel10'),
         );
-        vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
           'rhel-vms.factory.machine.name': 'name1',
           'rhel-vms.factory.machine.image': 'RHEL 10',
@@ -264,7 +256,6 @@ describe('activate', () => {
       });
 
       test('createVm is called with provided image path', async () => {
-        vi.mocked(fs.existsSync).mockReturnValue(true);
         await create({
           'rhel-vms.factory.machine.image': 'local image on disk',
           'rhel-vms.factory.machine.name': 'name1',
