@@ -16,51 +16,34 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Dirent, ObjectEncodingOptions, PathLike } from 'node:fs';
-import * as fsPromises from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { expect, test, vi } from 'vitest';
+import { vol } from 'memfs';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import { ImageCache } from './cache';
 
 vi.mock('node:fs');
 vi.mock('node:fs/promises');
 
+beforeEach(() => {
+  vol.reset();
+});
+
 test('images/image and images/rhel9_5 are deleted during init if they exist, rhel9_§ is not deleted', async () => {
   const cachePath = resolve('/', 'path', 'to', 'cache');
   const cache = new ImageCache(cachePath);
+  vol.fromJSON({
+    '/path/to/cache/images/image': '',
+    '/path/to/cache/images/rhel9_5': '',
+    '/path/to/cache/images/rhel9_6': '',
+  });
 
-  vi.mocked<
-    (
-      path: PathLike,
-      options: ObjectEncodingOptions & {
-        withFileTypes: true;
-        recursive: false;
-      },
-    ) => Promise<Dirent<string>[]>
-  >(fsPromises.readdir).mockResolvedValue([
-    {
-      name: 'image',
-      parentPath: resolve(cachePath, 'images'),
-      isFile: () => true,
-    } as Dirent,
-    {
-      name: 'rhel9_5',
-      parentPath: resolve(cachePath, 'images'),
-      isFile: () => true,
-    } as Dirent,
-    {
-      name: 'rhel9_6',
-      parentPath: resolve(cachePath, 'images'),
-      isFile: () => true,
-    } as Dirent,
-  ]);
   await cache.init();
 
-  expect(fsPromises.rm).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'cache', 'images', 'image'));
-  expect(fsPromises.rm).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'cache', 'images', 'rhel9_5'));
-  expect(fsPromises.rm).not.toHaveBeenCalledWith(resolve('/', 'path', 'to', 'cache', 'images', 'rhel9_6'));
+  expect(vol.toJSON()).toEqual({
+    '/path/to/cache/images/rhel9_6': '',
+  });
 });
 
 test('images directory is created', async () => {
@@ -68,7 +51,9 @@ test('images directory is created', async () => {
 
   await cache.init();
 
-  expect(fsPromises.mkdir).toHaveBeenCalledWith(resolve('/', 'path', 'to', 'cache', 'images'), { recursive: true });
+  expect(vol.toJSON()).toEqual({
+    '/path/to/cache/images': null,
+  });
 });
 
 test('getPath returns path for known image', async () => {
