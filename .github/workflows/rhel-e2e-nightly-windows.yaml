@@ -198,7 +198,12 @@ jobs:
         podman logs -f pde2e-podman-run
 
     - name: Run Podman Desktop Playwright E2E tests
+      env:
+        DVLPR_USERNAME: ${{ secrets.DVLPR_USERNAME }}
+        DVLPR_PASSWORD: ${{ secrets.DVLPR_PASSWORD }}
       run: |
+        echo "DVLPR_USERNAME=${DVLPR_USERNAME}" >> secrets.txt
+        echo "DVLPR_PASSWORD=${DVLPR_PASSWORD}" >> secrets.txt
         podman run -d --name pde2e-runner-run \
           -e TARGET_HOST=$(cat host) \
           -e TARGET_HOST_USERNAME=$(cat username) \
@@ -209,6 +214,7 @@ jobs:
           -e OUTPUT_FOLDER=/data \
           -e DEBUG=true \
           -v $PWD:/data:z \
+          -v $PWD/secrets.txt:/opt/pde2e-runner/secrets.txt:z \
           quay.io/odockal/pde2e-runner:${{ env.PDE2E_RUNNER }}-windows \
               pd-e2e/runner.ps1 \
                 -targetFolder pd-e2e \
@@ -226,6 +232,7 @@ jobs:
                 -start ${{ env.PODMAN_START }} \
                 -userNetworking ${{ env.PODMAN_NETWORKING }} \
                 -podmanProvider ${{ env.PODMAN_PROVIDER }} \
+                -secretFile secrets.txt \
                 -envVars ${{ env.ENV_VARS }}
         # check logs
         podman logs -f pde2e-runner-run
