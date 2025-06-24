@@ -26,6 +26,8 @@ import {
   expect as playExpect,
   findPageWithTitleInBrowser,
   getEntryFromLogs,
+  handleConfirmationDialog,
+  isLinux,
   NavigationBar,
   performBrowserLogin,
   ResourceConnectionCardPage,
@@ -37,8 +39,6 @@ import {
   test,
   waitForPodmanMachineStartup,
   waitUntil,
-  isLinux,
-  handleConfirmationDialog,
 } from '@podman-desktop/tests-playwright';
 
 const extensionName = 'rhel-vms';
