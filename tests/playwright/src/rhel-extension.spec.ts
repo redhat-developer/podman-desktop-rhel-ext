@@ -37,6 +37,8 @@ import {
   test,
   waitForPodmanMachineStartup,
   waitUntil,
+  isLinux,
+  handleConfirmationDialog,
 } from '@podman-desktop/tests-playwright';
 
 const extensionName = 'rhel-vms';
@@ -172,6 +174,12 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       });
       await chromiumPage.close();
     });
+
+    test('On linux, we cannot activate the subscription when logging via SSO', async ({ page, navigationBar }) => {
+      test.skip(!isLinux, 'Skipping on non-Linux platforms');
+      await navigationBar.openDashboard();
+      await handleConfirmationDialog(page, 'Red Hat Authentication', true, 'OK', '', 10_000);
+    });
   });
 
   test.describe.serial('RHEL VMs Extension', () => {
@@ -182,14 +190,14 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       const resourcesPage = new ResourcesPage(page);
       await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
 
-      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      const machineCard = new ResourceConnectionCardPage(page, 'rhel-vms', 'rhel');
       await playExpect.poll(async () => machineCard.doesResourceElementExist(), { timeout: 30_000 }).toBeTruthy();
       playExpect(await machineCard.resourceElementConnectionStatus.innerText()).toContain(ResourceElementState.Off);
     });
 
     test('Start RHEL VM', async ({ page }) => {
       test.setTimeout(70_000);
-      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      const machineCard = new ResourceConnectionCardPage(page, 'rhel-vms', 'rhel');
       await machineCard.performConnectionAction(ResourceElementActions.Start);
 
       await waitUntil(
@@ -201,7 +209,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
     test('Stop RHEL VM', async ({ page }) => {
       test.setTimeout(70_000);
-      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      const machineCard = new ResourceConnectionCardPage(page, 'rhel-vms', 'rhel');
       await machineCard.performConnectionAction(ResourceElementActions.Stop);
 
       await waitUntil(
@@ -212,7 +220,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
     test('Remove RHEL VM', async ({ page }) => {
       test.setTimeout(70_000);
-      const machineCard = new ResourceConnectionCardPage(page, 'macadam', 'rhel');
+      const machineCard = new ResourceConnectionCardPage(page, 'rhel-vms', 'rhel');
       await machineCard.performConnectionAction(ResourceElementActions.Delete);
 
       await playExpect.poll(async () => machineCard.doesResourceElementExist(), { timeout: 30_000 }).toBeFalsy();
@@ -245,12 +253,12 @@ async function ensureRhelExtensionIsRemoved(navigationBar: NavigationBar): Promi
 
 async function createRhelVM(page: Page, timeout = 120_000): Promise<void> {
   const navigationBar = new NavigationBar(page);
-  const rhelResourceCard = new ResourceConnectionCardPage(page, 'macadam');
+  const rhelResourceCard = new ResourceConnectionCardPage(page, 'rhel-vms');
 
   const settingsPage = await navigationBar.openSettings();
   const resourcesPage = await settingsPage.openTabPage(ResourcesPage);
   await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
-  await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('macadam')).toBeTruthy();
+  await playExpect.poll(async () => resourcesPage.resourceCardIsVisible('rhel-vms')).toBeTruthy();
   await playExpect(rhelResourceCard.createButton).toBeVisible();
 
   await rhelResourceCard.createButton.click();
