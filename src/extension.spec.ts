@@ -20,7 +20,7 @@ import { resolve } from 'node:path';
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 import { vol } from 'memfs';
-import { assert, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import * as authentication from './authentication';
 import { ImageCache } from './cache';
@@ -48,6 +48,7 @@ vi.mock('@crc-org/macadam.js', async () => {
   Macadam.prototype.startVm = vi.fn();
   Macadam.prototype.stopVm = vi.fn();
   Macadam.prototype.removeVm = vi.fn();
+  Macadam.prototype.executeCommand = vi.fn();
   return { Macadam };
 });
 vi.mock('./macadam-machine-stream.js', async () => {
@@ -137,6 +138,7 @@ describe('activate', () => {
         );
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.register': false,
         });
         expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
       });
@@ -148,6 +150,7 @@ describe('activate', () => {
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
           'rhel-vms.factory.machine.force-download': true,
+          'rhel-vms.factory.machine.register': false,
         });
         vol.fromJSON({
           '/path/to/storage/images/rhel10': '',
@@ -165,6 +168,7 @@ describe('activate', () => {
         });
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.register': false,
         });
         expect(utils.pullImageFromRedHatRegistry).not.toHaveBeenCalled();
       });
@@ -176,6 +180,7 @@ describe('activate', () => {
         await create({
           'rhel-vms.factory.machine.name': 'name1',
           'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.register': false,
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'applehv',
@@ -191,6 +196,7 @@ describe('activate', () => {
           'rhel-vms.factory.machine.image': 'local image on disk',
           'rhel-vms.factory.machine.name': 'name1',
           'rhel-vms.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
+          'rhel-vms.factory.machine.register': false,
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'applehv',
@@ -221,6 +227,7 @@ describe('activate', () => {
         );
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.register': false,
         });
         expect(utils.pullImageFromRedHatRegistry).toHaveBeenCalled();
       });
@@ -234,6 +241,7 @@ describe('activate', () => {
         });
         await create({
           'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.register': false,
         });
         expect(utils.pullImageFromRedHatRegistry).not.toHaveBeenCalled();
       });
@@ -245,6 +253,7 @@ describe('activate', () => {
         await create({
           'rhel-vms.factory.machine.name': 'name1',
           'rhel-vms.factory.machine.image': 'RHEL 10',
+          'rhel-vms.factory.machine.register': false,
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'wsl',
@@ -260,6 +269,7 @@ describe('activate', () => {
           'rhel-vms.factory.machine.image': 'local image on disk',
           'rhel-vms.factory.machine.name': 'name1',
           'rhel-vms.factory.machine.image-path': resolve('/', 'path', 'to', 'provided', 'image'),
+          'rhel-vms.factory.machine.register': false,
         });
         expect(macadamJSPackage.Macadam.prototype.createVm).toHaveBeenCalledWith({
           containerProvider: 'wsl',
@@ -288,6 +298,7 @@ describe('activate', () => {
         await expect(
           create({
             'rhel-vms.factory.machine.image': 'RHEL 10',
+            'rhel-vms.factory.machine.register': false,
           }),
         ).rejects.toThrowError('provider hyperv is not supported');
       });
@@ -304,6 +315,7 @@ describe('activate', () => {
         await expect(
           create({
             'rhel-vms.factory.machine.image': 'RHEL 10',
+            'rhel-vms.factory.machine.register': false,
           }),
         ).rejects.toThrowError('an init error');
       });
@@ -514,6 +526,107 @@ bla bla
         expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'wsl' });
         expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'hyperv' });
       });
+    });
+  });
+});
+
+describe('register', () => {
+  let create: (
+    params: {
+      [key: string]: unknown;
+    },
+    logger?: extensionApi.Logger,
+    token?: extensionApi.CancellationToken,
+  ) => Promise<void>;
+
+  const extensionContext: extensionApi.ExtensionContext = {
+    subscriptions: {
+      push: vi.fn(),
+    },
+    storagePath: resolve('/', 'path', 'to', 'storage'),
+  } as unknown as extensionApi.ExtensionContext;
+
+  const provider: extensionApi.Provider = {
+    setVmProviderConnectionFactory: vi.fn(),
+    registerVmProviderConnection: vi.fn(),
+    updateStatus: vi.fn(),
+  } as unknown as extensionApi.Provider;
+
+  const authClient: SubscriptionManagerClientV1 = {
+    images: {
+      downloadImageUsingSha: vi.fn(),
+    },
+  } as unknown as SubscriptionManagerClientV1;
+
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    vi.mocked(extensionApi.provider.createProvider).mockReturnValue(provider);
+
+    vi.mocked(extensionApi.env).isMac = true;
+    vi.mocked(extensionApi.env).isWindows = false;
+    vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+
+    await activate(extensionContext);
+    expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
+    const call = vi.mocked(provider.setVmProviderConnectionFactory).mock.calls[0];
+    assert(!!call[0].create);
+    create = call[0].create;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('register is true and machine is started and registered', async () => {
+    const authClient: SubscriptionManagerClientV1 = {
+      getOrganizationId: vi.fn().mockReturnValue('123456'),
+    } as unknown as SubscriptionManagerClientV1;
+    vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+    vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([
+      {
+        Name: 'name1',
+        Image: '/path/to/image1',
+        CPUs: 1,
+        Memory: '1GB',
+        DiskSize: '1GB',
+        Running: true,
+        Starting: true,
+        Port: 80,
+        RemoteUsername: 'user',
+        IdentityPath: '/path/to/id1',
+        VMType: 'applehv',
+      },
+    ]);
+    vi.mocked(macadamJSPackage.Macadam.prototype.executeCommand).mockResolvedValue({
+      stdout: 'done',
+    } as extensionApi.RunResult);
+    const createPromise = create({
+      'rhel-vms.factory.machine.name': 'name1',
+      'rhel-vms.factory.machine.image': 'RHEL 10',
+      'rhel-vms.factory.machine.register': true,
+    });
+    vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([
+      {
+        Name: 'name1',
+        Image: '/path/to/image1',
+        CPUs: 1,
+        Memory: '1GB',
+        DiskSize: '1GB',
+        Running: true,
+        Starting: false,
+        Port: 80,
+        RemoteUsername: 'user',
+        IdentityPath: '/path/to/id1',
+        VMType: 'applehv',
+      },
+    ]);
+    vi.advanceTimersToNextTimer();
+    await createPromise;
+    expect(macadamJSPackage.Macadam.prototype.executeCommand).toHaveBeenCalledWith({
+      name: 'name1',
+      command: 'sudo',
+      args: ['subscription-manager', 'register', '--force', '--activationkey', 'podman-desktop', '--org', '123456'],
+      runOptions: {},
     });
   });
 });

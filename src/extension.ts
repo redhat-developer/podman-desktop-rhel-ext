@@ -444,7 +444,7 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
         logger?: extensionApi.Logger,
         token?: extensionApi.CancellationToken,
       ) => {
-        return createVM(imageCache, params, logger, token);
+        return createVM(provider, imageCache, params, logger, token);
       },
       creationDisplayName: 'Virtual machine',
     },
@@ -457,6 +457,7 @@ async function createProvider(extensionContext: extensionApi.ExtensionContext): 
 }
 
 async function createVM(
+  provider: extensionApi.Provider,
   imageCache: ImageCache,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: { [key: string]: any },
@@ -470,17 +471,17 @@ async function createVM(
     telemetryRecords.OS = 'win';
   }
 
-  let provider: 'wsl' | 'hyperv' | 'applehv' | undefined;
+  let containerProvider: 'wsl' | 'hyperv' | 'applehv' | undefined;
   if (params['rhel-vms.factory.machine.win.provider']) {
-    provider = params['rhel-vms.factory.machine.win.provider'];
-    telemetryRecords.provider = provider;
+    containerProvider = params['rhel-vms.factory.machine.win.provider'];
+    telemetryRecords.provider = containerProvider;
   } else {
     if (extensionApi.env.isWindows) {
-      provider = (await isWSLEnabled()) ? 'wsl' : 'hyperv';
-      telemetryRecords.provider = provider;
+      containerProvider = (await isWSLEnabled()) ? 'wsl' : 'hyperv';
+      telemetryRecords.provider = containerProvider;
     } else if (extensionApi.env.isMac) {
-      provider = 'applehv';
-      telemetryRecords.provider = provider;
+      containerProvider = 'applehv';
+      telemetryRecords.provider = containerProvider;
     }
   }
 
@@ -506,6 +507,12 @@ async function createVM(
     throw new Error('force-download must be a boolean');
   }
 
+  // register
+  const register = params['rhel-vms.factory.machine.register'] ?? true;
+  if (typeof register !== 'boolean') {
+    throw new Error('register must be a boolean');
+  }
+
   if (image) {
     const cachedImagePath = imageCache.getPath(image);
     if (!forceDownload && existsSync(cachedImagePath)) {
@@ -514,7 +521,7 @@ async function createVM(
       logger?.log(`Using image cached in ${cachedImagePath}\n`);
     } else {
       const client = await initAuthentication();
-      const imageSha = getImageSha(provider, image);
+      const imageSha = getImageSha(containerProvider, image);
       logger?.log('Downloading image, please wait...\n');
       await pullImageFromRedHatRegistry(client, imageSha, cachedImagePath, logger, token);
       logger?.log(`Image downloaded\n`);
@@ -530,10 +537,12 @@ async function createVM(
       name: name,
       imagePath: imagePath,
       username: 'core',
-      containerProvider: provider,
+      containerProvider,
       runOptions: { logger, token },
     });
+    logger?.log('VM created\n');
   } catch (error) {
+    logger?.log('VM creation failed\n');
     telemetryRecords.error = error;
     const runError = error as extensionApi.RunError;
 
@@ -547,6 +556,77 @@ async function createVM(
     //in the POC we do not send any telemetry
     //sendTelemetryRecords('macadam.machine.init', telemetryRecords, false);
   }
+
+  if (register) {
+    await startAndRegisterVM(provider, containerProvider, name, logger);
+  }
+}
+
+/* startAndRegisterVM starts a VM and registers it via subscription-manager
+ * Limitation: the machine must be stopped
+ */
+async function startAndRegisterVM(
+  provider: extensionApi.Provider,
+  containerProvider: 'wsl' | 'hyperv' | 'applehv' | undefined,
+  name: string,
+  logger?: extensionApi.Logger,
+): Promise<void> {
+  const list = await macadam.listVms({ containerProvider: containerProvider });
+  const machineInfo = list.find(info => info.Name === name);
+  if (!machineInfo) {
+    throw new Error(`Machine ${name} not found`);
+  }
+
+  const startedPromise = new Promise<void>((resolve, reject) => {
+    const listener = (image: string, status: extensionApi.ProviderConnectionStatus): void => {
+      if (image === machineInfo.Image && status === 'started') {
+        listeners.delete(listener);
+        clearTimeout(timeoutId);
+        resolve();
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      listeners.delete(listener);
+      reject(new Error(`Machine ${name} failed to start within timeout`));
+      logger?.log(`VM ${name} failed to start within timeout\n`);
+    }, 60000); // 60 second timeout
+
+    listeners.add(listener);
+  });
+
+  const startPromise = startMachine(provider, {
+    name,
+    image: machineInfo.Image,
+    cpus: machineInfo.CPUs,
+    memory: Number(machineInfo.Memory),
+    diskSize: Number(machineInfo.DiskSize),
+    port: machineInfo.Port,
+    remoteUsername: machineInfo.RemoteUsername,
+    identityPath: machineInfo.IdentityPath,
+    vmType: machineInfo.VMType,
+  });
+  try {
+    await Promise.all([startPromise, startedPromise]);
+    logger?.log('VM started\n');
+  } catch (error) {
+    logger?.log(`VM start failed, the VM cannot be registered: ${String(error)}\n`);
+    throw error;
+  }
+
+  const currentSession = await initAuthentication();
+  const orgId = currentSession.getOrganizationId();
+  logger?.log('Registering VM ...\n');
+  const result = await macadam.executeCommand({
+    name,
+    command: 'sudo',
+    args: ['subscription-manager', 'register', '--force', '--activationkey', 'podman-desktop', '--org', orgId],
+    runOptions: { logger },
+  });
+  if (result.stderr) {
+    throw new Error(result.stderr);
+  }
+  logger?.log('VM registered\n');
 }
 
 function updateWSLHyperVEnabledContextValue(value: boolean): void {
