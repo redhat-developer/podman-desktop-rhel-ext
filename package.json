@@ -45,6 +45,12 @@
           "description": "Image Path",
           "when": "rhel-vms.localImage"
         },
+        "rhel-vms.factory.machine.register": {
+          "type": "boolean",
+          "scope": "VmProviderConnectionFactory",
+          "default": true,
+          "description": "Register machine via subscription-manager"
+        },
         "rhel-vms.factory.machine.cpus": {
           "type": "number",
           "format": "cpu",

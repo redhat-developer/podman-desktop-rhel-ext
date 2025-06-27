@@ -21,6 +21,7 @@ import type { Client } from 'openapi-fetch';
 import createClient from 'openapi-fetch';
 
 import type { paths } from '../../src-gen/subscription-v1';
+import { parseJwt } from '../token';
 
 export const REGISTRY_REDHAT_IO = 'registry.redhat.io';
 
@@ -54,8 +55,14 @@ export class Images extends ClientHolder<paths> {
 
 export class SubscriptionManagerClientV1 extends ClientHolder<paths> {
   images: Images;
+  token: string;
   constructor(options: { BASE: string; TOKEN: string }) {
     super(createClient<paths>({ baseUrl: options.BASE }), options.TOKEN);
+    this.token = options.TOKEN;
     this.images = new Images(this.client);
+  }
+  getOrganizationId(): string {
+    const accessTokenJson = parseJwt(this.token);
+    return accessTokenJson.organization.id;
   }
 }
