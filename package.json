@@ -109,7 +109,7 @@
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.0.1-202506241253-f373979",
-    "@podman-desktop/api": "1.20.0",
+    "@podman-desktop/api": "1.20.1",
     "compare-versions": "^6.1.1",
     "openapi-fetch": "^0.14.0",
     "semver": "^7.7.2",
