@@ -12,8 +12,8 @@ importers:
         specifier: 0.0.1-202506241253-f373979
         version: 0.0.1-202506241253-f373979
       '@podman-desktop/api':
-        specifier: 1.20.1
-        version: 1.20.1
+        specifier: 1.20.2
+        version: 1.20.2
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
@@ -482,8 +482,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@podman-desktop/api@1.20.1':
-    resolution: {integrity: sha512-fBWqQ+uTP7Fj9ZtJ8RhN3brXeV7wPOhQNIZfdjHhYnndfJR6Mbd2eChFGFyPgY1XgEggPy+/18j1POHFJLitPg==}
+  '@podman-desktop/api@1.20.2':
+    resolution: {integrity: sha512-aQP4nJcm/TeV8qj5a6N1rBtNMoohKDGCrVn3tgVZpgRysE489cbgIBOKaP3bJ0WeyaldY5kAEHG/VALHZr6Rgg==}
 
   '@redocly/ajv@8.11.2':
     resolution: {integrity: sha512-io1JpnwtIcvojV7QKDUSIuMN/ikdOUd1ReEnUnMKGfDVridQZ31J0MmIuqwuRjWDZfmvr+Q0MqCcfHM2gTivOg==}
@@ -2673,7 +2673,7 @@ snapshots:
 
   '@crc-org/macadam.js@0.0.1-202506241253-f373979':
     dependencies:
-      '@podman-desktop/api': 1.20.1
+      '@podman-desktop/api': 1.20.2
 
   '@csstools/color-helpers@5.0.2':
     optional: true
@@ -2935,7 +2935,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@podman-desktop/api@1.20.1': {}
+  '@podman-desktop/api@1.20.2': {}
 
   '@redocly/ajv@8.11.2':
     dependencies:
