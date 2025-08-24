@@ -88,8 +88,8 @@ importers:
         specifier: ^16.3.0
         version: 16.3.0
       memfs:
-        specifier: ^4.36.3
-        version: 4.36.3
+        specifier: ^4.37.1
+        version: 4.37.1
       openapi-typescript:
         specifier: ^7.9.1
         version: 7.9.1(typescript@5.9.2)
@@ -1857,8 +1857,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  memfs@4.36.3:
-    resolution: {integrity: sha512-rZIVsNPGdZDPls/ckWhIsod2zRNsI2f2kEru0gMldkrEve+fPn7CVBTvfKLNyHQ9rZDWwzVBF8tPsZivzDPiZQ==}
+  memfs@4.37.1:
+    resolution: {integrity: sha512-10/gLuR1lnzU17BvXrpVplKs6lQmRtzH/67bar7fwRBEGLCSfK33M8lxN3gT1MdSUmGRRpN8LpIex9c39hAUyQ==}
     engines: {node: '>= 4.0.0'}
 
   merge2@1.4.1:
@@ -4528,7 +4528,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  memfs@4.36.3:
+  memfs@4.37.1:
     dependencies:
       '@jsonjoy.com/json-pack': 1.11.0(tslib@2.8.1)
       '@jsonjoy.com/util': 1.9.0(tslib@2.8.1)
