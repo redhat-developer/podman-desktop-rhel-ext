@@ -19,14 +19,15 @@
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { Browser, Locator, Page } from '@playwright/test';
+import type { Browser, BrowserContext, Locator, Page } from '@playwright/test';
 import type { ConfirmInputValue } from '@podman-desktop/tests-playwright';
 import {
   AuthenticationPage,
   expect as playExpect,
   findPageWithTitleInBrowser,
-  getEntryFromLogs,
+  getEntryFromConsoleLogs,
   handleConfirmationDialog,
+  handleCookies,
   isLinux,
   NavigationBar,
   performBrowserLogin,
@@ -50,13 +51,11 @@ const extensionURL = process.env.OCI_IMAGE ?? 'ghcr.io/redhat-developer/podman-d
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const browserOutputPath = [__dirname, '..', 'output', 'browser'];
+const browserOutputPath = [__dirname, '..', 'tests', 'output', 'browser'];
 
 const expectedAuthPageTitle = 'Log In';
-const regex = new RegExp(/((http|https):\/\/.*$)/);
 let signInButton: Locator;
-let browser: Browser;
-let chromiumPage: Page;
+const urlRegex = new RegExp(/((http|https):\/\/.*$)/);
 const chromePort = '9222';
 
 test.use({
@@ -106,6 +105,21 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   });
 
   test.describe.serial('Red Hat Authentication extension installation', () => {
+    let chromiumPage: Page | undefined;
+    let browser: Browser | undefined;
+    let context: BrowserContext | undefined;
+
+    test.afterAll(async () => {
+      if (browser) {
+        console.log('Stopping tracing and closing browser...');
+        await context?.tracing.stop({ path: path.join(...browserOutputPath, 'traces', 'browser-authentication-trace.zip') });
+        if (chromiumPage) {
+          await chromiumPage.close();
+        }
+        await browser.close();
+      }
+    });
+
     test('SSO provider is available in Authentication Page', async ({ page, navigationBar }) => {
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.openTabPage(AuthenticationPage);
@@ -118,7 +132,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
     });
 
     test('Can open authentication page in browser', async ({ navigationBar, page }) => {
-      test.setTimeout(120_000);
+      test.setTimeout(90_000);
       const settingsBar = await navigationBar.openSettings();
       await settingsBar.openTabPage(AuthenticationPage);
       const authPage = new AuthenticationPage(page);
@@ -133,17 +147,26 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       await playExpect(signInButton).toBeEnabled({ timeout: 10_000 });
       await signInButton.click();
 
-      await page.waitForTimeout(5_000);
-
-      const urlMatch = await getEntryFromLogs(page, /\.*openid-connect.*/, regex, 'sso.redhat.com');
+      const urlMatch = await getEntryFromConsoleLogs(page, /\[redhat-authentication\].*openid-connect.*/, urlRegex, 'sso.redhat.com', 25_000);
+      // start up chrome instance and return browser object
       if (urlMatch) {
-        const context = await browser.newContext();
+        browser = await startChromium(chromePort, path.join(...browserOutputPath));
+        context = await browser.newContext();
+        await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
         const newPage = await context.newPage();
         await newPage.goto(urlMatch);
         await newPage.waitForURL(/sso.redhat.com/);
         chromiumPage = newPage;
-        const page = await findPageWithTitleInBrowser(browser, expectedAuthPageTitle);
-        console.log(`Found page with title: ${await page?.title()}`);
+
+        // Handle Cookies in the popup iframe
+        const cookiesManager = 'TrustArc Cookie Consent Manager';
+        const consentManager = 'TrustArc Consent Manager Frame';
+        await handleCookies(chromiumPage, cookiesManager, 'Proceed with Required Cookies only', 10_000);
+        await handleCookies(chromiumPage, consentManager, 'Accept default', 10_000);
+        if (browser) {
+          await findPageWithTitleInBrowser(browser, expectedAuthPageTitle);
+        }
+        console.log(`Found page with title: ${await chromiumPage?.title()}`);
       } else {
         throw new Error('Did not find Initial SSO Login Page');
       }
@@ -158,7 +181,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       await chromiumPage.bringToFront();
       console.log(`Switched to Chrome tab with title: ${await chromiumPage.title()}`);
       const usernameAction: ConfirmInputValue = {
-        inputLocator: chromiumPage.getByRole('textbox', { name: 'Red Hat login or email' }),
+        inputLocator: chromiumPage.getByRole('textbox', { name: 'Red Hat login' }),
         inputValue: process.env.DVLPR_USERNAME ?? 'unknown',
         confirmLocator: chromiumPage.getByRole('button', { name: 'Next' }),
       };
@@ -167,12 +190,17 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
         inputValue: process.env.DVLPR_PASSWORD ?? 'unknown',
         confirmLocator: chromiumPage.getByRole('button', { name: 'Log in' }),
       };
-      await performBrowserLogin(chromiumPage, /Log In/, usernameAction, passwordAction, async chromiumPage => {
+      const usernameBox = chromiumPage.getByRole('textbox', { name: 'Red Hat login' });
+      await playExpect(usernameBox).toBeVisible({ timeout: 5_000 });
+      await usernameBox.focus();
+      await performBrowserLogin(chromiumPage, /Log In/, usernameAction, passwordAction, async (chromiumPage) => {
         const backButton = chromiumPage.getByRole('button', { name: 'Go back to Podman Desktop' });
         await playExpect(backButton).toBeEnabled();
+        await chromiumPage.screenshot({ path: path.join(...browserOutputPath, 'screenshots', 'after_login_in_browser.png'), type: 'png', fullPage: true });
+        console.log(`Logged in, go back...`);
         await backButton.click();
+        await chromiumPage.screenshot({ path: path.join(...browserOutputPath, 'screenshots', 'after_clck_go_back.png'), type: 'png', fullPage: true });
       });
-      await chromiumPage.close();
     });
 
     test('On linux, we cannot activate the subscription when logging via SSO', async ({ page, navigationBar }) => {
@@ -275,3 +303,4 @@ async function createRhelVM(page: Page, timeout = 120_000): Promise<void> {
   await playExpect(goBackButton).toBeEnabled({ timeout: timeout });
   await goBackButton.click();
 }
+
