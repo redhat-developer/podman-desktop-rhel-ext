@@ -58,7 +58,7 @@ on:
         type: string
         required: true
       pde2e_image_version:
-        default: 'v0.0.3-windows'
+        default: 'v0.0.3'
         description: 'PDE2E runner, builder, podman image versions'
         type: string
         required: true
