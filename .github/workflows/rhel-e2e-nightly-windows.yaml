@@ -153,7 +153,7 @@ jobs:
           env-vars: ${{ env.ENV_VARS }}
 
       - name: Run Podman Desktop Playwright E2E tests
-        uses: podman-desktop/e2e/.github/actions/run-playwright-test@7b76a5d9b661fc73bf6f3511f20a4445586f2ced
+        uses: podman-desktop/e2e/.github/actions/run-playwright-test@15b800edab941d394b32aaaa3f7961bb7db7ec3a
         with:
           pde2e-runner-tag: ${{ env.PDE2E_IMAGE_VERSION }}
           podman-desktop-path: true
