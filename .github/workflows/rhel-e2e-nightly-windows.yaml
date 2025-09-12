@@ -125,6 +125,14 @@ jobs:
           echo "${{ github.event.inputs.mapt_params || env.DEFAULT_MAPT_PARAMS }}" | awk -F ';' \
             '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "MAPT_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
 
+      - name: Set env secrets
+        env:
+          DVLPR_USERNAME: ${{ secrets.DVLPR_USERNAME }}
+          DVLPR_PASSWORD: ${{ secrets.DVLPR_PASSWORD }}
+        run: |
+          echo "DVLPR_USERNAME=${DVLPR_USERNAME}" >> secrets.txt
+          echo "DVLPR_PASSWORD=${DVLPR_PASSWORD}" >> secrets.txt
+
       - name: Create instance
         uses: podman-desktop/e2e/.github/actions/create-instance@36e440f2ac18193214f4ffa8f7f1c4c0cb8c9446
         with:
@@ -160,7 +168,7 @@ jobs:
           env-vars: ${{ env.ENV_VARS }}
 
       - name: Run Podman Desktop Playwright E2E tests
-        uses: podman-desktop/e2e/.github/actions/run-playwright-test@15b800edab941d394b32aaaa3f7961bb7db7ec3a
+        uses: podman-desktop/e2e/.github/actions/run-playwright-test@db37fcfe19c2265b4840460fa5fed1f130d9a634
         with:
           pde2e-runner-tag: ${{ env.PDE2E_IMAGE_VERSION }}
           podman-desktop-path: true
