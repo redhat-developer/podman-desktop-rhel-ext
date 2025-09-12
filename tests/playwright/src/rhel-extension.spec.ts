@@ -172,11 +172,11 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
         chromiumPage = newPage;
 
         // Handle Cookies in the popup iframe
-        const cookiesManager = 'TrustArc Cookie Consent Manager';
-        const consentManager = 'TrustArc Consent Manager Frame';
-        await handleCookies(chromiumPage, cookiesManager, 'Required Cookies only', 10_000);
+        //const cookiesManager = 'TrustArc Cookie Consent Manager';
+        //const consentManager = 'TrustArc Consent Manager Frame';
+        await handleCookies(chromiumPage, 'Required Cookies only', 10_000);
         await chromiumPage.waitForTimeout(1_000);
-        await handleCookies(chromiumPage, consentManager, 'Accept Default', 10_000);
+        await handleCookies(chromiumPage, 'Accept Default', 10_000);
 
         if (browser) {
           await findPageWithTitleInBrowser(browser, expectedAuthPageTitle);
@@ -331,4 +331,17 @@ async function createRhelVM(page: Page, timeout = 120_000): Promise<void> {
   const goBackButton = page.getByRole('button', { name: 'Go back to resources' });
   await playExpect(goBackButton).toBeEnabled({ timeout: timeout });
   await goBackButton.click();
+}
+
+export async function handleCookies(page: Page, buttonName: string, timeout: number): Promise<void> {
+  const iframe = page.frameLocator('iframe:visible');
+  const button = iframe.getByRole('button', { name: buttonName });
+
+  try {
+    await playExpect(button).toBeVisible({ timeout: timeout });
+    await button.scrollIntoViewIfNeeded();
+    await button.click();
+  } catch (error) {
+    console.log(`Error handling cookies: ${error}`);
+  }
 }
