@@ -186,7 +186,6 @@ jobs:
           podman-provider: ${{ env.PODMAN_PROVIDER }}
           env-vars: ${{ env.ENV_VARS }}
           ci-bot-token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
-          secrets-file: 'secrets.txt'
 
       - name: Destroy instance
         if: always()
