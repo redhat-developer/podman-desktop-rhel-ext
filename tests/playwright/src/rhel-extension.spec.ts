@@ -112,6 +112,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
     let context: BrowserContext | undefined;
 
     test.afterAll(async () => {
+      test.setTimeout(90_000);
       if (browser) {
         console.log('Stopping tracing and closing browser...');
         await context?.tracing.stop({
