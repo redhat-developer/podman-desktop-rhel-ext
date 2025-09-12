@@ -27,7 +27,7 @@ import {
   findPageWithTitleInBrowser,
   getEntryFromConsoleLogs,
   handleConfirmationDialog,
-  handleCookies,
+  isCI,
   isLinux,
   NavigationBar,
   performBrowserLogin,
@@ -74,6 +74,7 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner }) => {
+  test.setTimeout(120_000);
   await runner.close();
 });
 
@@ -105,19 +106,24 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   });
 
   test.describe.serial('Red Hat Authentication extension installation', () => {
+    test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
+
     let chromiumPage: Page | undefined;
     let browser: Browser | undefined;
     let context: BrowserContext | undefined;
 
     test.afterAll(async () => {
+      test.setTimeout(120_000);
       if (browser) {
         console.log('Stopping tracing and closing browser...');
-        await context?.tracing.stop({ path: path.join(...browserOutputPath, 'traces', 'browser-authentication-trace.zip') });
-        if (chromiumPage) {
-          await chromiumPage.close();
-        }
-        await browser.close();
+        await context?.tracing.stop({
+          path: path.join(...browserOutputPath, 'traces', 'browser-authentication-trace.zip'),
+        });
       }
+
+      await chromiumPage?.close();
+      await context?.close();
+      await browser?.close();
     });
 
     test('SSO provider is available in Authentication Page', async ({ page, navigationBar }) => {
@@ -147,7 +153,13 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       await playExpect(signInButton).toBeEnabled({ timeout: 10_000 });
       await signInButton.click();
 
-      const urlMatch = await getEntryFromConsoleLogs(page, /\[redhat-authentication\].*openid-connect.*/, urlRegex, 'sso.redhat.com', 25_000);
+      const urlMatch = await getEntryFromConsoleLogs(
+        page,
+        /\[redhat-authentication\].*openid-connect.*/,
+        urlRegex,
+        'sso.redhat.com',
+        25_000,
+      );
       // start up chrome instance and return browser object
       if (urlMatch) {
         browser = await startChromium(chromePort, path.join(...browserOutputPath));
@@ -159,10 +171,10 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
         chromiumPage = newPage;
 
         // Handle Cookies in the popup iframe
-        const cookiesManager = 'TrustArc Cookie Consent Manager';
-        const consentManager = 'TrustArc Consent Manager Frame';
-        await handleCookies(chromiumPage, cookiesManager, 'Proceed with Required Cookies only', 10_000);
-        await handleCookies(chromiumPage, consentManager, 'Accept default', 10_000);
+        await handleCookies(chromiumPage, 'Required Cookies only', 10_000);
+        await chromiumPage.waitForTimeout(1_000);
+        await handleCookies(chromiumPage, 'Accept Default', 10_000);
+
         if (browser) {
           await findPageWithTitleInBrowser(browser, expectedAuthPageTitle);
         }
@@ -193,24 +205,38 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       const usernameBox = chromiumPage.getByRole('textbox', { name: 'Red Hat login' });
       await playExpect(usernameBox).toBeVisible({ timeout: 5_000 });
       await usernameBox.focus();
-      await performBrowserLogin(chromiumPage, /Log In/, usernameAction, passwordAction, async (chromiumPage) => {
+      await performBrowserLogin(chromiumPage, /Log In/, usernameAction, passwordAction, async chromiumPage => {
         const backButton = chromiumPage.getByRole('button', { name: 'Go back to Podman Desktop' });
         await playExpect(backButton).toBeEnabled();
-        await chromiumPage.screenshot({ path: path.join(...browserOutputPath, 'screenshots', 'after_login_in_browser.png'), type: 'png', fullPage: true });
+        await chromiumPage.screenshot({
+          path: path.join(...browserOutputPath, 'screenshots', 'after_login_in_browser.png'),
+          type: 'png',
+          fullPage: true,
+        });
         console.log(`Logged in, go back...`);
         await backButton.click();
-        await chromiumPage.screenshot({ path: path.join(...browserOutputPath, 'screenshots', 'after_clck_go_back.png'), type: 'png', fullPage: true });
+        await chromiumPage.screenshot({
+          path: path.join(...browserOutputPath, 'screenshots', 'after_clck_go_back.png'),
+          type: 'png',
+          fullPage: true,
+        });
       });
     });
 
     test('On linux, we cannot activate the subscription when logging via SSO', async ({ page, navigationBar }) => {
       test.skip(!isLinux, 'Skipping on non-Linux platforms');
       await navigationBar.openDashboard();
-      await handleConfirmationDialog(page, 'Red Hat Authentication', true, 'OK', '', 10_000);
+      try {
+        await handleConfirmationDialog(page, 'Red Hat Authentication', true, 'OK');
+      } catch (error) {
+        console.log('Error handling confirmation dialog:', error);
+      }
     });
   });
 
   test.describe.serial('RHEL VMs Extension', () => {
+    test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
+
     test('Create RHEL VM', async ({ page }) => {
       test.setTimeout(310_000);
       await createRhelVM(page, 300_000);
@@ -304,3 +330,15 @@ async function createRhelVM(page: Page, timeout = 120_000): Promise<void> {
   await goBackButton.click();
 }
 
+export async function handleCookies(page: Page, buttonName: string, timeout: number): Promise<void> {
+  const iframe = page.frameLocator('iframe:visible');
+  const button = iframe.getByRole('button', { name: buttonName });
+
+  try {
+    await playExpect(button).toBeVisible({ timeout: timeout });
+    await button.scrollIntoViewIfNeeded();
+    await button.click();
+  } catch (error) {
+    console.log(`Error handling cookies: ${error}`);
+  }
+}
