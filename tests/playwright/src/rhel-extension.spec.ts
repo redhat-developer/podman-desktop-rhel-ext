@@ -107,24 +107,24 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   });
 
   test.describe.serial('Red Hat Authentication extension installation', () => {
-    test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
+    //test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
 
     let chromiumPage: Page | undefined;
     let browser: Browser | undefined;
     let context: BrowserContext | undefined;
 
     test.afterAll(async () => {
-      test.setTimeout(90_000);
+      test.setTimeout(120_000);
       if (browser) {
         console.log('Stopping tracing and closing browser...');
         await context?.tracing.stop({
           path: path.join(...browserOutputPath, 'traces', 'browser-authentication-trace.zip'),
         });
-        if (chromiumPage) {
-          await chromiumPage.close();
-        }
-        await browser.close();
       }
+
+      await chromiumPage?.close();
+      await context?.close();
+      await browser?.close();
     });
 
     test('SSO provider is available in Authentication Page', async ({ page, navigationBar }) => {
