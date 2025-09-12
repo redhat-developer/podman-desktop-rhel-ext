@@ -172,7 +172,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
         const cookiesManager = 'TrustArc Cookie Consent Manager';
         const consentManager = 'TrustArc Consent Manager Frame';
         await handleCookies(chromiumPage, cookiesManager, 'Required Cookies only', 10_000);
-        await page.waitForTimeout(1_000);
+        await chromiumPage.waitForTimeout(1_000);
         await handleCookies(chromiumPage, consentManager, 'Accept Default', 10_000);
 
         if (browser) {
