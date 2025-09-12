@@ -174,7 +174,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
         //await handleCookies(chromiumPage, cookiesManager, 'Required Cookies only', 10_000);
         //await page.waitForTimeout(1_000);
         //await handleCookies(chromiumPage, consentManager, 'Accept Default', 10_000);
-        const proceedButton = chromiumPage.getByRole('button', { name: 'Proceed with Required Cookies only' });
+        const proceedButton = chromiumPage.getByRole('button', { name: 'Required Cookies only' });
         await playExpect(proceedButton).toBeVisible({ timeout: 10_000 });
         await proceedButton.click();
         await playExpect(proceedButton).not.toBeVisible({ timeout: 10_000 });
