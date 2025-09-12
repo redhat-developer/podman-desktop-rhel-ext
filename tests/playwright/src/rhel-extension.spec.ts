@@ -27,7 +27,6 @@ import {
   findPageWithTitleInBrowser,
   getEntryFromConsoleLogs,
   handleConfirmationDialog,
-  handleCookies,
   isCI,
   isLinux,
   NavigationBar,
