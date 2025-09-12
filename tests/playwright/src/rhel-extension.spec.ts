@@ -107,6 +107,8 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   });
 
   test.describe.serial('Red Hat Authentication extension installation', () => {
+    test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
+
     let chromiumPage: Page | undefined;
     let browser: Browser | undefined;
     let context: BrowserContext | undefined;
