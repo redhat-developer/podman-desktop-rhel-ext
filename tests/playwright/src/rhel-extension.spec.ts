@@ -28,6 +28,7 @@ import {
   getEntryFromConsoleLogs,
   handleConfirmationDialog,
   handleCookies,
+  isCI,
   isLinux,
   NavigationBar,
   performBrowserLogin,
@@ -231,6 +232,8 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
   });
 
   test.describe.serial('RHEL VMs Extension', () => {
+    test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
+
     test('Create RHEL VM', async ({ page }) => {
       test.setTimeout(310_000);
       await createRhelVM(page, 300_000);
