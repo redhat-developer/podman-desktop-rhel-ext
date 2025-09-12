@@ -171,8 +171,6 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
         chromiumPage = newPage;
 
         // Handle Cookies in the popup iframe
-        //const cookiesManager = 'TrustArc Cookie Consent Manager';
-        //const consentManager = 'TrustArc Consent Manager Frame';
         await handleCookies(chromiumPage, 'Required Cookies only', 10_000);
         await chromiumPage.waitForTimeout(1_000);
         await handleCookies(chromiumPage, 'Accept Default', 10_000);
