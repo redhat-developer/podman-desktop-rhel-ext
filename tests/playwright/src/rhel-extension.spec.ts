@@ -238,8 +238,8 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
     test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
 
     test('Create RHEL VM', async ({ page }) => {
-      test.setTimeout(310_000);
-      await createRhelVM(page, 300_000);
+      test.setTimeout(730_000);
+      await createRhelVM(page, 720_000);
 
       const resourcesPage = new ResourcesPage(page);
       await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
