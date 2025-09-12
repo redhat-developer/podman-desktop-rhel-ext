@@ -108,7 +108,11 @@ jobs:
           DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
           DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3'
           DEFAULT_MAPT_PARAMS: 'IMAGE=${{ vars.MAPT_IMAGE || ''quay.io/redhat-developer/mapt'' }};VERSION_TAG=${{ vars.MAPT_VERSION_TAG || ''v0.9.7'' }};CPUS=${{ vars.MAPT_CPUS || ''8  '' }};MEMORY=${{ vars.MAPT_MEMORY || ''32'' }};EXCLUDED_REGIONS="${{ vars.MAPT_EXCLUDED_REGIONS || ''westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest'' }}"'
+          DVLPR_USERNAME: ${{ secrets.DVLPR_USERNAME }}
+          DVLPR_PASSWORD: ${{ secrets.DVLPR_PASSWORD }}
         run: |
+          echo "DVLPR_USERNAME=${DVLPR_USERNAME}" >> secrets.txt
+          echo "DVLPR_PASSWORD=${DVLPR_PASSWORD}" >> secrets.txt
           echo "NPM_TARGET=${{ github.event.inputs.npm_target || env.DEFAULT_NPM_TARGET }}" >> $GITHUB_ENV
           echo "ENV_VARS=${{ github.event.inputs.env_vars || env.DEFAULT_ENV_VARS }}" >> $GITHUB_ENV
           echo "PODMAN_PROVIDER=${{ github.event.inputs.podman_provider || env.DEFAULT_PODMAN_PROVIDER }}" >> $GITHUB_ENV
@@ -178,6 +182,7 @@ jobs:
           podman-provider: ${{ env.PODMAN_PROVIDER }}
           env-vars: ${{ env.ENV_VARS }}
           ci-bot-token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
+          secrets-file: 'secrets.txt'
 
       - name: Destroy instance
         if: always()
