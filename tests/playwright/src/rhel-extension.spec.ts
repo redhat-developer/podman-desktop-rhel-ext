@@ -325,6 +325,10 @@ async function createRhelVM(page: Page, timeout = 120_000): Promise<void> {
   await playExpect(createRhelVMButton).toBeEnabled({ timeout: 10_000 });
   await createRhelVMButton.click();
 
+  const showLogsButton = page.getByLabel('Show Logs');
+  await playExpect(showLogsButton).toBeVisible({ timeout: 30_000 });
+  await showLogsButton.click();
+
   const goBackButton = page.getByRole('button', { name: 'Go back to resources' });
   await playExpect(goBackButton).toBeEnabled({ timeout: timeout });
   await goBackButton.click();
