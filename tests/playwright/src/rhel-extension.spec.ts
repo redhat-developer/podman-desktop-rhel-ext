@@ -237,10 +237,10 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
   test.describe.serial('RHEL VMs Extension', () => {
     test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
-    test.skip(
-      !!isWindows,
-      'Currently there are problems iwth subscribing the RHEL machine on Azure instances as described in issue https://github.com/redhat-developer/podman-desktop-redhat-account-ext/issues/864',
-    );
+    //test.skip(
+    //  !!isWindows,
+    //  'Currently there are problems iwth subscribing the RHEL machine on Azure instances as described in issue https://github.com/redhat-developer/podman-desktop-redhat-account-ext/issues/864',
+    //);
 
     test('Create RHEL VM', async ({ page }) => {
       test.setTimeout(1_510_000);
