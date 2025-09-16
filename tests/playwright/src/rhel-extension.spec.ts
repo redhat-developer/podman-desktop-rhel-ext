@@ -29,6 +29,7 @@ import {
   handleConfirmationDialog,
   isCI,
   isLinux,
+  isWindows,
   NavigationBar,
   performBrowserLogin,
   ResourceConnectionCardPage,
@@ -236,10 +237,14 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
   test.describe.serial('RHEL VMs Extension', () => {
     test.skip(!!isCI && !!isLinux, 'Skipping on CI GitHub Actions for Linux runners, they are not supported');
+    test.skip(
+      !!isCI && !!isWindows,
+      'Currently there are problems iwth subscribing the RHEL machine on Azure instances as described in issue https://github.com/redhat-developer/podman-desktop-redhat-account-ext/issues/864',
+    );
 
     test('Create RHEL VM', async ({ page }) => {
-      test.setTimeout(3_610_000);
-      await createRhelVM(page, 3_600_000);
+      test.setTimeout(1_5010_000);
+      await createRhelVM(page, 1_500_000);
 
       const resourcesPage = new ResourcesPage(page);
       await playExpect(resourcesPage.heading).toBeVisible({ timeout: 10_000 });
