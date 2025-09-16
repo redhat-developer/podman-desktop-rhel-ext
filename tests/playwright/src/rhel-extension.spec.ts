@@ -243,7 +243,7 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
     );
 
     test('Create RHEL VM', async ({ page }) => {
-      test.setTimeout(1_5010_000);
+      test.setTimeout(1_510_000);
       await createRhelVM(page, 1_500_000);
 
       const resourcesPage = new ResourcesPage(page);
