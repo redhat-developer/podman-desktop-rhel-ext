@@ -16,6 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,6 +31,7 @@ import {
   handleConfirmationDialog,
   isCI,
   isLinux,
+  isMac,
   isWindows,
   NavigationBar,
   performBrowserLogin,
@@ -42,6 +45,7 @@ import {
   waitForPodmanMachineStartup,
   waitUntil,
 } from '@podman-desktop/tests-playwright';
+
 
 const extensionName = 'rhel-vms';
 const extensionLabel = 'redhat.rhel-vms';
@@ -59,6 +63,12 @@ let signInButton: Locator;
 const urlRegex = new RegExp(/((http|https):\/\/.*$)/);
 const chromePort = '9222';
 
+const homeDir = os.homedir();
+const foldersToDelete = [
+  path.join(homeDir, '.config', 'container', 'macadam'),
+  path.join(homeDir, '.local', 'share', 'containers', 'macadam'),
+];
+
 test.use({
   runnerOptions: new RunnerOptions({
     customFolder: 'rhel-e2e-tests',
@@ -72,6 +82,13 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
   runner.setVideoAndTraceName('rhel-extension-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
+
+  if (isCI && isMac) {
+    for (const folder of foldersToDelete) {
+      console.log(`Attempting to delete directory: ${folder}`);
+      fs.rmSync(folder, { recursive: true, force: true });
+    }
+  }
 });
 
 test.afterAll(async ({ runner }) => {
@@ -244,6 +261,11 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
     test('Create RHEL VM', async ({ page }) => {
       test.setTimeout(1_510_000);
+
+      let initialExpectedMachineState = ResourceElementState.Off;
+      if (isCI && isMac) {
+        initialExpectedMachineState = ResourceElementState.Running;
+      }
       await createRhelVM(page, 1_500_000);
 
       const resourcesPage = new ResourcesPage(page);
@@ -251,11 +273,13 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
 
       const machineCard = new ResourceConnectionCardPage(page, 'rhel-vms', 'rhel');
       await playExpect.poll(async () => machineCard.doesResourceElementExist(), { timeout: 30_000 }).toBeTruthy();
-      playExpect(await machineCard.resourceElementConnectionStatus.innerText()).toContain(ResourceElementState.Off);
+      playExpect(await machineCard.resourceElementConnectionStatus.innerText()).toContain(initialExpectedMachineState);
     });
 
     test('Start RHEL VM', async ({ page }) => {
+      test.skip(isCI && isMac, 'RHEL VM is already started on MacOS CI');
       test.setTimeout(70_000);
+
       const machineCard = new ResourceConnectionCardPage(page, 'rhel-vms', 'rhel');
       await machineCard.performConnectionAction(ResourceElementActions.Start);
 
