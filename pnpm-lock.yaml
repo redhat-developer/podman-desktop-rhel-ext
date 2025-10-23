@@ -103,8 +103,8 @@ importers:
         specifier: ^8.46.2
         version: 8.46.2(eslint@9.38.0(jiti@1.21.7))(typescript@5.9.3)
       vite:
-        specifier: ^7.1.11
-        version: 7.1.11(@types/node@22.18.12)(jiti@1.21.7)
+        specifier: ^7.1.12
+        version: 7.1.12(@types/node@22.18.12)(jiti@1.21.7)
       vitest:
         specifier: ^3.1.1
         version: 3.1.1(@types/node@22.18.12)(jiti@1.21.7)(jsdom@26.0.0)
@@ -2566,8 +2566,8 @@ packages:
       yaml:
         optional: true
 
-  vite@7.1.11:
-    resolution: {integrity: sha512-uzcxnSDVjAopEUjljkWh8EIrg6tlzrjFUfMcR1EVsRDGwf/ccef0qQPRyOrROwhrTDaApueq+ja+KLPlzR/zdg==}
+  vite@7.1.12:
+    resolution: {integrity: sha512-ZWyE8YXEXqJrrSLvYgrRP7p62OziLW7xI5HYGWFzOvupfAlrLvURSzv/FyGyy0eidogEM3ujU+kUG1zuHgb6Ug==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -5348,7 +5348,7 @@ snapshots:
       fsevents: 2.3.3
       jiti: 1.21.7
 
-  vite@7.1.11(@types/node@22.18.12)(jiti@1.21.7):
+  vite@7.1.12(@types/node@22.18.12)(jiti@1.21.7):
     dependencies:
       esbuild: 0.25.11
       fdir: 6.5.0(picomatch@4.0.3)
