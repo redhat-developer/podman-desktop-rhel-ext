@@ -19,14 +19,18 @@
 import { mkdir, readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+import { env } from '@podman-desktop/api';
+
 import { RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9, RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10 } from './constants';
 
 export class ImageCache {
   #cachedImageDir: string;
 
+  #extension = env.isWindows ? '.tar.gz' : '.qcow2';
+
   #cachedImageNames: Record<string, string> = {
-    [RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10]: 'rhel10_0',
-    [RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9]: 'rhel9_6',
+    [RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10]: `rhel10_0${this.#extension}`,
+    [RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9]: `rhel9_6${this.#extension}`,
   };
 
   constructor(storagePath: string) {
