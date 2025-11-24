@@ -43,7 +43,7 @@ jobs:
       RHELExtensionVersion: ${{ steps.TAG_UTIL.outputs.RHELExtensionVersion}}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
 
@@ -154,7 +154,7 @@ jobs:
     needs: [builder-image, tag]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
 
