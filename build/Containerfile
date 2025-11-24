@@ -19,10 +19,10 @@ FROM ghcr.io/redhat-developer/podman-desktop-rhel-ext-builder:next AS builder
 
 COPY . .
 
-RUN pnpm --frozen-lockfile install && \
+RUN rm -f pnpm-workspace.yaml && \
+    pnpm --frozen-lockfile install && \
     pnpm build
 
-RUN echo "node-linker=hoisted" >> /opt/app-root/src/dist/.npmrc
 RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependencies.\"$1\".version"; };' && \
         MACADAM_VERSION=$(dep_version "@crc-org/macadam.js") && \
         SSH2_VERSION=$(dep_version "ssh2") && \
