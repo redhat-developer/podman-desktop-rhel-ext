@@ -124,7 +124,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: podman-desktop-rhel-ext
-          tags: next ${{ github.sha }}
+          tags: ${{ github.sha }}
           archs: amd64, arm64
           containerfiles: |
             build/Containerfile
