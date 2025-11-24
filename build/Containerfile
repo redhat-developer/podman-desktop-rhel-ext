@@ -15,7 +15,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM ghcr.io/redhat-developer/podman-desktop-rhel-ext-builder:next AS builder
+FROM registry.access.redhat.com/ubi9/nodejs-22 as builder
+
+USER root
+RUN dnf install -y jq
+USER default
+
+RUN npm i -g ssh2@1.16.0 && \
+    npm install --global pnpm@10 
 
 COPY . .
 
