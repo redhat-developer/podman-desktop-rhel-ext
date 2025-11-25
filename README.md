@@ -12,17 +12,17 @@ The `macadam` binary is embedded in the extension, nothing needs to be installed
 
 When initialized, the extension checks if the necessary binaries are present in `/opt/macadam/bin`. If they are not, the extension installs them in this directory.
 
-> If this installation fails, you can run the installer manually, using the installer found at https://github.com/crc-org/macadam/releases/tag/v0.1.1. After this, you need to restart the extension which should find and use the binaries.
+> If this installation fails, you can run the installer manually, using the installer found at https://github.com/crc-org/macadam/releases/tag/v0.2.0. After this, you need to restart the extension which should find and use the binaries.
 
 ### On Fedora Linux/x86_64
 
-The `macadam` binary must be installed in the directory `/opt/macadam/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.1.1, rename it `macadam` and make it executable.
+The `macadam` binary must be installed in the directory `/usr/local/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.2.0, rename it `macadam` and make it executable.
 
 ```
-curl -L -o macadam https://github.com/crc-org/macadam/releases/download/v0.1.1/macadam-linux-amd64
+curl -L -o macadam https://github.com/crc-org/macadam/releases/download/v0.2.0/macadam-linux-amd64
 chmod 755 macadam
-sudo mkdir -p /opt/macadam/bin/
-sudo mv macadam /opt/macadam/bin/
+sudo mkdir -p /usr/local/bin/
+sudo mv macadam /usr/local/bin/
 ```
 
 The `gvproxy` binary must be installed with the command `dnf install gvisor-tap-vsock`.
