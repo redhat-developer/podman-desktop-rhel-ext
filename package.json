@@ -25,9 +25,9 @@
         },
         "rhel-vms.factory.machine.image": {
           "type": "string",
-          "enum": ["RHEL 10.0", "RHEL 9.6", "local image on disk"],
+          "enum": ["RHEL 10", "RHEL 9", "local image on disk"],
           "scope": "VmProviderConnectionFactory",
-          "default": "RHEL 10.0",
+          "default": "RHEL 10",
           "description": "Image to download"
         },
         "rhel-vms.factory.machine.force-download": {

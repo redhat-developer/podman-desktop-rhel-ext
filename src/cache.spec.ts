@@ -36,37 +36,37 @@ beforeEach(() => {
   vi.mocked(env).isLinux = false;
 });
 
-test('images/image and images/rhel9_5 are deleted during init if they exist, rhel9_6 is not deleted, on Windows', async () => {
+test('images/image and images/rhel9_6 are deleted during init if they exist, rhel9 is not deleted, on Windows', async () => {
   vi.mocked(env).isWindows = true;
   const cachePath = resolve('/', 'path', 'to', 'cache');
   const cache = new ImageCache(cachePath);
   vol.fromJSON({
     '/path/to/cache/images/image': '',
-    '/path/to/cache/images/rhel9_5.tar.gz': '',
     '/path/to/cache/images/rhel9_6.tar.gz': '',
+    '/path/to/cache/images/rhel9.tar.gz': '',
   });
 
   await cache.init();
 
   expect(vol.toJSON()).toEqual({
-    '/path/to/cache/images/rhel9_6.tar.gz': '',
+    '/path/to/cache/images/rhel9.tar.gz': '',
   });
 });
 
-test('images/image and images/rhel9_5 are deleted during init if they exist, rhel9_6 is not deleted, on Mac', async () => {
+test('images/image and images/rhel9_6 are deleted during init if they exist, rhel9 is not deleted, on Mac', async () => {
   vi.mocked(env).isMac = true;
   const cachePath = resolve('/', 'path', 'to', 'cache');
   const cache = new ImageCache(cachePath);
   vol.fromJSON({
     '/path/to/cache/images/image': '',
-    '/path/to/cache/images/rhel9_5.tar.gz': '',
-    '/path/to/cache/images/rhel9_6.qcow2': '',
+    '/path/to/cache/images/rhel9_6.tar.gz': '',
+    '/path/to/cache/images/rhel9.qcow2': '',
   });
 
   await cache.init();
 
   expect(vol.toJSON()).toEqual({
-    '/path/to/cache/images/rhel9_6.qcow2': '',
+    '/path/to/cache/images/rhel9.qcow2': '',
   });
 });
 
@@ -84,24 +84,24 @@ test('getPath returns path for known image on Windows', async () => {
   vi.mocked(env).isWindows = true;
   const cache = new ImageCache(resolve('/', 'path', 'to', 'cache'));
   await cache.init();
-  const path = cache.getPath('RHEL 10.0');
-  expect(path).toBe(resolve('/', 'path', 'to', 'cache', 'images', 'rhel10_0.tar.gz'));
+  const path = cache.getPath('RHEL 10');
+  expect(path).toBe(resolve('/', 'path', 'to', 'cache', 'images', 'rhel10.tar.gz'));
 });
 
 test('getPath returns path for known image on Linux', async () => {
   vi.mocked(env).isMac = true;
   const cache = new ImageCache(resolve('/', 'path', 'to', 'cache'));
   await cache.init();
-  const path = cache.getPath('RHEL 10.0');
-  expect(path).toBe(resolve('/', 'path', 'to', 'cache', 'images', 'rhel10_0.qcow2'));
+  const path = cache.getPath('RHEL 10');
+  expect(path).toBe(resolve('/', 'path', 'to', 'cache', 'images', 'rhel10.qcow2'));
 });
 
 test('getPath returns path for known image on Mac', async () => {
   vi.mocked(env).isMac = true;
   const cache = new ImageCache(resolve('/', 'path', 'to', 'cache'));
   await cache.init();
-  const path = cache.getPath('RHEL 10.0');
-  expect(path).toBe(resolve('/', 'path', 'to', 'cache', 'images', 'rhel10_0.qcow2'));
+  const path = cache.getPath('RHEL 10');
+  expect(path).toBe(resolve('/', 'path', 'to', 'cache', 'images', 'rhel10.qcow2'));
 });
 
 test('getPath raises an exception for an unknown image', async () => {

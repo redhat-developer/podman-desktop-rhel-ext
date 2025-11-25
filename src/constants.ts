@@ -20,7 +20,7 @@ export const RHEL_VMS_IMAGE_PROPERTY_KEY = 'rhel-vms.factory.machine.image';
 export const RHEL_VMS_IMAGE_PROPERTY_VALUE_LOCAL = 'local image on disk';
 
 // Must match enumed value for rhel-vms.factory.machine.image in package.json
-export const RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10 = 'RHEL 10.0';
-export const RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9 = 'RHEL 9.6';
+export const RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_10 = 'RHEL 10';
+export const RHEL_VMS_IMAGE_PROPERTY_VALUE_RHEL_9 = 'RHEL 9';
 
 export const RHEL_VMS_LOCAL_IMAGE_KEY = 'rhel-vms.localImage';
