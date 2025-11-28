@@ -34,6 +34,38 @@ OCI Images to install the extensions are available at https://github.com/redhat-
 
 The latest development image is ghcr.io/redhat-developer/podman-desktop-rhel-ext:next
 
+## Air-gapped environment
+
+By default, the RHEL extension downloads virtual machine images from the Red Hat Customer Portal, and caches these images in the user's disk. If the user cannot have access to this portal, you can place the images in a specific directory of the user's computer, and these images will be used.
+
+Images for versions RHEL 9.6+ and 10.0+ are supported.
+
+The images must be placed in the following directory, with the following names:
+
+### On MacOS / Linux
+
+RHEL 10 image:
+```
+$HOME/.local/share/containers/podman-desktop/extensions-storage/redhat.rhel-vms/images/rhel10.qcow2
+```
+
+RHEL 9 image:
+```
+$HOME/.local/share/containers/podman-desktop/extensions-storage/redhat.rhel-vms/images/rhel9.qcow2
+```
+
+### On Windows
+
+RHEL 10 image:
+```
+$HOME/.local/share/containers/podman-desktop/extensions-storage/redhat.rhel-vms/images/rhel10.tar.gz
+```
+
+RHEL 9 image:
+```
+$HOME/.local/share/containers/podman-desktop/extensions-storage/redhat.rhel-vms/images/rhel9.tar.gz
+```
+
 ## Troubleshooting
 
 **MacOS**
