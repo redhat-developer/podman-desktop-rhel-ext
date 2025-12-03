@@ -15,7 +15,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM registry.access.redhat.com/ubi10/nodejs-22
+# tag 10.1-1764649731
+FROM registry.access.redhat.com/ubi10/nodejs-22@sha256:38c62c09f82794dcf4588cbc0f9a92b614ec865da5eaed67f81e7d2faf3f0913
 
 USER root
 RUN dnf install -y jq
