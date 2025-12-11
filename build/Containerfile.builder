@@ -29,5 +29,7 @@ COPY tests/playwright/package.json tests/playwright/package.json
 COPY .npmrc .npmrc
 
 RUN npm i -g ssh2@1.16.0 && \
-    npm install --global pnpm@10.20.0 && \
+    PNPM_VERSION=$(cat package.json | jq .packageManager | sed -E 's|.*pnpm@([0-9.]+).*|\1|') && \
+    echo Installing pnpm version ${PNPM_VERSION} && \
+    npm install --global pnpm@${PNPM_VERSION} && \
     pnpm --frozen-lockfile install
