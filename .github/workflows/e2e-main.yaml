@@ -93,7 +93,7 @@ jobs:
 
       - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Update podman v5.x
         uses: redhat-actions/podman-install@16601a3a718acf7d6986140459092a2f5b941a03
