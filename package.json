@@ -7,6 +7,7 @@
   "license": "Apache-2.0",
   "publisher": "redhat",
   "engines": {
+    "node": ">=24.0.0",
     "podman-desktop": ">=1.10.0"
   },
   "main": "./dist/extension.js",
@@ -119,7 +120,7 @@
     "@eslint/compat": "^2.0.0",
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
-    "@types/node": "^22",
+    "@types/node": "^24",
     "@types/ssh2": "^1.15.5",
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
