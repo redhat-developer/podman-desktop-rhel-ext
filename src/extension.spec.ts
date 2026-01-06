@@ -49,6 +49,7 @@ vi.mock('@crc-org/macadam.js', async () => {
   Macadam.prototype.stopVm = vi.fn();
   Macadam.prototype.removeVm = vi.fn();
   Macadam.prototype.executeCommand = vi.fn();
+  Macadam.prototype.areBinariesAvailable = vi.fn();
   return { Macadam };
 });
 vi.mock('./macadam-machine-stream.js', async () => {
@@ -77,6 +78,7 @@ describe('activate', () => {
 
   beforeEach(async () => {
     vi.mocked(extensionApi.provider.createProvider).mockReturnValue(provider);
+    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(true);
   });
 
   test('macadam library is initialized', async () => {
@@ -565,6 +567,8 @@ describe('register', () => {
     vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(extensionApi.env).isWindows = false;
     vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+
+    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(true);
 
     await activate(extensionContext);
     expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
