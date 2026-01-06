@@ -109,7 +109,7 @@
     "test:e2e": "cd tests/playwright && npm run test:e2e"
   },
   "dependencies": {
-    "@crc-org/macadam.js": "0.2.0-202510011253-9f21470",
+    "@crc-org/macadam.js": "0.2.0-202601061512-0729168",
     "@podman-desktop/api": "1.24.2",
     "compare-versions": "^6.1.1",
     "openapi-fetch": "^0.15.0",
