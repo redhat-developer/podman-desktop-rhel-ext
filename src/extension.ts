@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025 - 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import {
 } from './constants';
 import { getImageSha } from './images';
 import { LoggerDelegator } from './logger';
+import { MacadamInitializer } from './macadam-init';
 import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
 import { getErrorMessage, pullImageFromRedHatRegistry, verifyContainerProivder } from './utils';
 import { isHyperVEnabled, isWSLEnabled } from './win/utils';
@@ -88,18 +89,25 @@ type MachineJSONListOutput = {
 };
 
 export let macadam: macadamJSPackage.Macadam;
+export let macadamInitializer: MacadamInitializer;
 
 export const macadamMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   macadam = new macadamJSPackage.Macadam('rhel');
-  await macadam.init();
+  macadamInitializer = new MacadamInitializer(macadam);
 
   const provider = await createProvider(extensionContext);
 
-  monitorMachines(provider, extensionContext).catch((error: unknown) => {
-    console.error('Error while monitoring machines', error);
+  macadamInitializer.onInitialized(() => {
+    monitorMachines(provider, extensionContext).catch((error: unknown) => {
+      console.error('Error while monitoring machines', error);
+    });
   });
+
+  if (macadam.areBinariesAvailable()) {
+    await macadamInitializer.init();
+  }
 
   // create cli tool for the cliTool page in desktop
   const macadamCli = extensionApi.cli.createCliTool({
@@ -464,6 +472,7 @@ async function createVM(
   logger?: extensionApi.Logger,
   token?: extensionApi.CancellationToken,
 ): Promise<void> {
+  await macadamInitializer.ensureInitialized();
   const telemetryRecords: Record<string, unknown> = {};
   if (extensionApi.env.isMac) {
     telemetryRecords.OS = 'mac';

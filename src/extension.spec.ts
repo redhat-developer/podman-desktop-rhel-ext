@@ -49,6 +49,7 @@ vi.mock('@crc-org/macadam.js', async () => {
   Macadam.prototype.stopVm = vi.fn();
   Macadam.prototype.removeVm = vi.fn();
   Macadam.prototype.executeCommand = vi.fn();
+  Macadam.prototype.areBinariesAvailable = vi.fn();
   return { Macadam };
 });
 vi.mock('./macadam-machine-stream.js', async () => {
@@ -61,7 +62,7 @@ beforeEach(() => {
   vol.reset();
 });
 
-describe('activate', () => {
+describe.each([true, false])('activate when binaries availability is %s', binariesAvailable => {
   const extensionContext: extensionApi.ExtensionContext = {
     subscriptions: {
       push: vi.fn(),
@@ -77,11 +78,12 @@ describe('activate', () => {
 
   beforeEach(async () => {
     vi.mocked(extensionApi.provider.createProvider).mockReturnValue(provider);
+    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(binariesAvailable);
   });
 
-  test('macadam library is initialized', async () => {
+  test('macadam library is initialized only if binaries are available', async () => {
     await activate(extensionContext);
-    expect(macadamJSPackage.Macadam.prototype.init).toHaveBeenCalled();
+    expect(macadamJSPackage.Macadam.prototype.init).toHaveBeenCalledTimes(binariesAvailable ? 1 : 0);
   });
 
   test('createCliTool is called and its result is added to subscriptions', async () => {
@@ -384,14 +386,14 @@ bla bla
         ]);
       });
 
-      test('listVms is called once', async () => {
+      test('listVms is called once', { skip: !binariesAvailable }, async () => {
         await activate(extensionContext);
         await vi.waitFor(() => {
           expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledWith({ containerProvider: 'applehv' });
         });
       });
 
-      test('registerVmProviderConnection is called once', async () => {
+      test('registerVmProviderConnection is called once', { skip: !binariesAvailable }, async () => {
         await activate(extensionContext);
         await vi.waitFor(() => {
           expect(provider.registerVmProviderConnection).toHaveBeenCalledOnce();
@@ -404,6 +406,18 @@ bla bla
         beforeEach(async () => {
           vi.mocked(provider.updateStatus).mockClear();
           await activate(extensionContext);
+
+          if (!binariesAvailable) {
+            expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
+            const call = vi.mocked(provider.setVmProviderConnectionFactory).mock.calls[0];
+            assert(!!call[0].create);
+            const create = call[0].create;
+            await create({
+              'rhel-vms.factory.machine.image': 'RHEL 10',
+              'rhel-vms.factory.machine.register': false,
+            });
+          }
+
           await vi.waitFor(() => {
             expect(provider.registerVmProviderConnection).toHaveBeenCalledOnce();
           });
@@ -520,6 +534,16 @@ bla bla
 
       test('listVms is called for each provider', async () => {
         await activate(extensionContext);
+        if (!binariesAvailable) {
+          expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
+          const call = vi.mocked(provider.setVmProviderConnectionFactory).mock.calls[0];
+          assert(!!call[0].create);
+          const create = call[0].create;
+          await create({
+            'rhel-vms.factory.machine.image': 'RHEL 10',
+            'rhel-vms.factory.machine.register': false,
+          });
+        }
         await vi.waitFor(() => {
           expect(macadamJSPackage.Macadam.prototype.listVms).toHaveBeenCalledTimes(2);
         });
@@ -565,6 +589,8 @@ describe('register', () => {
     vi.mocked(extensionApi.env).isMac = true;
     vi.mocked(extensionApi.env).isWindows = false;
     vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
+
+    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(true);
 
     await activate(extensionContext);
     expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
