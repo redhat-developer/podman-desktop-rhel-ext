@@ -78,7 +78,7 @@ describe.each([true, false])('activate when binaries availability is %s', binari
 
   beforeEach(async () => {
     vi.mocked(extensionApi.provider.createProvider).mockReturnValue(provider);
-    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(binariesAvailable);
+    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockResolvedValue(binariesAvailable);
   });
 
   test('macadam library is initialized only if binaries are available', async () => {
@@ -590,7 +590,7 @@ describe('register', () => {
     vi.mocked(extensionApi.env).isWindows = false;
     vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
 
-    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(true);
+    vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockResolvedValue(true);
 
     await activate(extensionContext);
     expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
