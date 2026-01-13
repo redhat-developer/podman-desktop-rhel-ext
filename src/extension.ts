@@ -105,7 +105,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     });
   });
 
-  if (macadam.areBinariesAvailable()) {
+  if (await macadam.areBinariesAvailable()) {
     await macadamInitializer.init();
   }
 
