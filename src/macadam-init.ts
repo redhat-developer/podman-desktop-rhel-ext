@@ -24,20 +24,12 @@ const SIGNAL = 'emit';
 
 export class MacadamInitializer {
   #onMacadamInit = new EventEmitter();
-  #initialized = false;
 
   constructor(private readonly macadam: Macadam) {}
 
   async init(): Promise<void> {
     await this.macadam.init();
-    this.#initialized = true;
     this.#onMacadamInit.emit(SIGNAL);
-  }
-
-  async ensureInitialized(): Promise<void> {
-    if (!this.#initialized) {
-      await this.init();
-    }
   }
 
   onInitialized(callback: () => void): void {
