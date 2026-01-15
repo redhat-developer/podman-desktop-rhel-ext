@@ -34,7 +34,8 @@ export class MacadamInitializer {
     this.#onMacadamInit.emit(SIGNAL);
   }
 
-  async ensureInitialized(): Promise<void> {
+  async ensureBinariesUpToDate(): Promise<void> {
+    await this.macadam.ensureBinariesUpToDate();
     if (!this.#initialized) {
       await this.init();
     }
