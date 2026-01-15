@@ -200,7 +200,7 @@ async function startMachine(
   const startTime = performance.now();
 
   try {
-    await macadam.ensureBinariesUpToDate();
+    await macadamInitializer.ensureBinariesUpToDate();
     await macadam.startVm({
       name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -230,7 +230,7 @@ async function stopMachine(
   const telemetryRecords: Record<string, unknown> = {};
   telemetryRecords.provider = 'rhel-vms';
   try {
-    await macadam.ensureBinariesUpToDate();
+    await macadamInitializer.ensureBinariesUpToDate();
     await macadam.stopVm({
       name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -262,7 +262,7 @@ async function registerProviderFor(
       await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
-      await macadam.ensureBinariesUpToDate();
+      await macadamInitializer.ensureBinariesUpToDate();
       await macadam.removeVm({
         name: machineInfo.name,
         containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -476,7 +476,7 @@ async function createVM(
   logger?: extensionApi.Logger,
   token?: extensionApi.CancellationToken,
 ): Promise<void> {
-  await macadam.ensureBinariesUpToDate();
+  await macadamInitializer.ensureBinariesUpToDate();
   const telemetryRecords: Record<string, unknown> = {};
   if (extensionApi.env.isMac) {
     telemetryRecords.OS = 'mac';
