@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.5.0-next.202601150730-694f5f3
-        version: 0.5.0-next.202601150730-694f5f3
+        specifier: 0.5.0
+        version: 0.5.0
       '@podman-desktop/api':
         specifier: 1.24.2
         version: 1.24.2
@@ -157,8 +157,8 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@crc-org/macadam.js@0.5.0-next.202601150730-694f5f3':
-    resolution: {integrity: sha512-9v9Ta3Gp6LxIfH784cTM2N6dxDnvMlUUjJY2062wF6gafssEHo5c4ZQPJ05V70YSEU5W1BdELOAupT9Y1Cv6jg==}
+  '@crc-org/macadam.js@0.5.0':
+    resolution: {integrity: sha512-WBnReMQDkDJskNktER63+OYTBfWjdvT6+ZVUKdqRbUZrFqHjUPjtyEdrdc0yUV5JsqtUyQMMRuKhisiODO3x/g==}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -2653,7 +2653,7 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@crc-org/macadam.js@0.5.0-next.202601150730-694f5f3':
+  '@crc-org/macadam.js@0.5.0':
     dependencies:
       '@podman-desktop/api': 1.24.2
       semver: 7.7.3
