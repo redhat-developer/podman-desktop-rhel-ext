@@ -573,6 +573,7 @@ describe('register', () => {
     vi.mocked(authentication.initAuthentication).mockResolvedValue(authClient);
 
     vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(true);
+    vi.mocked(macadamJSPackage.Macadam.prototype.ensureBinariesUpToDate).mockResolvedValue();
 
     await activate(extensionContext);
     expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
@@ -628,7 +629,7 @@ describe('register', () => {
         VMType: 'applehv',
       },
     ]);
-    vi.advanceTimersToNextTimer();
+    await vi.advanceTimersToNextTimerAsync();
     await createPromise;
     expect(macadamJSPackage.Macadam.prototype.executeCommand).toHaveBeenCalledWith({
       name: 'name1',
