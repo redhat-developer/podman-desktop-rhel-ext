@@ -30,7 +30,7 @@ sudo mv macadam /usr/local/bin/
 
 The `gvproxy` binary must be installed with the command `dnf install gvisor-tap-vsock`.
 
-> macadam needs gvproxy >= 0.8.3 to work. On recent versions of Fedora, the version installed by the `gvisor-tap-vsock` package is correct. You may need to install it diffently in older Fedora releases.
+> macadam needs gvproxy >= 0.8.3 to work. On recent versions of Fedora, the version installed by the `gvisor-tap-vsock` package is correct. You may need to install it differently in older Fedora releases.
 
 ## Install the extension
 
