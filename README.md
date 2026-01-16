@@ -17,7 +17,7 @@ When initialized, the extension checks if the necessary binaries are present in 
 
 > If this installation fails, you can run the installer manually, using the installer found at https://github.com/crc-org/macadam/releases/tag/v0.3.0. After this, you need to restart the extension which should find and use the binaries.
 
-### On Fedora Linux 43 / x86_64
+### On Fedora Linux/x86_64
 
 The `macadam` binary must be installed in the directory `/usr/local/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.3.0, rename it `macadam` and make it executable.
 
@@ -30,6 +30,7 @@ sudo mv macadam /usr/local/bin/
 
 The `gvproxy` binary must be installed with the command `dnf install gvisor-tap-vsock`.
 
+> macadam needs gvproxy >= 0.8.3 to work. On recent versions of Fedora, the version installed by the `gvisor-tap-vsock` package is correct. You may need to install it diffently in older Fedora releases.
 
 ## Install the extension
 
