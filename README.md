@@ -19,7 +19,7 @@ When initialized, the extension checks if the necessary binaries are present in 
 
 ### On Fedora Linux 43 / x86_64
 
-The `macadam` binary must be installed in the directory `/usr/local/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.2.0, rename it `macadam` and make it executable.
+The `macadam` binary must be installed in the directory `/usr/local/bin/`: download the binary from https://github.com/crc-org/macadam/releases/tag/v0.3.0, rename it `macadam` and make it executable.
 
 ```
 curl -L -o macadam https://github.com/crc-org/macadam/releases/download/v0.3.0/macadam-linux-amd64
