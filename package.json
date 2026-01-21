@@ -139,7 +139,7 @@
     "eslint-plugin-sonarjs": "^3.0.5",
     "eslint-plugin-unicorn": "^62.0.0",
     "globals": "^17.0.0",
-    "memfs": "^4.55.0",
+    "memfs": "^4.56.4",
     "openapi-typescript": "^7.10.1",
     "prettier": "^3.8.0",
     "typescript": "^5.9.3",
