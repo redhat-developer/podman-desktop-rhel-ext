@@ -26,7 +26,11 @@
         },
         "rhel-vms.factory.machine.image": {
           "type": "string",
-          "enum": ["RHEL 10", "RHEL 9", "local image on disk"],
+          "enum": [
+            "RHEL 10",
+            "RHEL 9",
+            "local image on disk"
+          ],
           "scope": "VmProviderConnectionFactory",
           "default": "RHEL 10",
           "description": "Image to download"
@@ -115,7 +119,6 @@
     "@podman-desktop/api": "1.24.2",
     "compare-versions": "^6.1.1",
     "openapi-fetch": "^0.15.0",
-    "semver": "^7.7.3",
     "ssh2": "^1.17.0"
   },
   "devDependencies": {

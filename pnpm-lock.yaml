@@ -20,9 +20,6 @@ importers:
       openapi-fetch:
         specifier: ^0.15.0
         version: 0.15.0
-      semver:
-        specifier: ^7.7.3
-        version: 7.7.3
       ssh2:
         specifier: ^1.17.0
         version: 1.17.0
