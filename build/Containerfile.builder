@@ -23,9 +23,9 @@ USER default
 
 COPY package.json .
 COPY pnpm-lock.yaml .
-COPY pnpm-workspace.yaml .
-COPY tests/playwright/package.json tests/playwright/package.json
-COPY .npmrc .npmrc
+# COPY pnpm-workspace.yaml .
+# COPY tests/playwright/package.json tests/playwright/package.json
+# COPY .npmrc .npmrc
 
 RUN PNPM_VERSION=$(cat package.json | jq .packageManager | sed -E 's|.*pnpm@([0-9.]+).*|\1|') && \
     echo Installing pnpm version ${PNPM_VERSION} && \
