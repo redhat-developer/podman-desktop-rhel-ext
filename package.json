@@ -2,7 +2,7 @@
   "name": "rhel-vms",
   "displayName": "RHEL VMs",
   "description": "Create Red Hat Enterprise Linux VMs easily",
-  "version": "0.11.0-next",
+  "version": "0.12.0-next",
   "icon": "icon.png",
   "license": "Apache-2.0",
   "publisher": "redhat",
