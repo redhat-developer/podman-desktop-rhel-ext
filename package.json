@@ -115,7 +115,7 @@
     "@podman-desktop/api": "1.25.1",
     "compare-versions": "^6.1.1",
     "openapi-fetch": "^0.15.0",
-    "semver": "^7.7.3",
+    "semver": "^7.7.4",
     "ssh2": "^1.17.0"
   },
   "devDependencies": {
