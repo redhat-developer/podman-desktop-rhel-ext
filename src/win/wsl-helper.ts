@@ -246,7 +246,7 @@ export class WSL2Check extends BaseCheck {
       let message = runError.message ? `${runError.message}\n` : '';
       message += runError.stdout || '';
       message += runError.stderr || '';
-      throw new Error(message);
+      throw new Error(message, { cause: error });
     }
   }
 
