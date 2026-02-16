@@ -68,7 +68,8 @@ export default [
     plugins: {
       // compliant v9 plug-ins
       unicorn,
-      'file-progress': fileProgress,
+      // non-compliant v10 plug-ins
+      'file-progress': fixupPluginRules(fileProgress),
       // non-compliant v9 plug-ins
       etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
