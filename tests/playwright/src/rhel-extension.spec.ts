@@ -241,6 +241,10 @@ test.describe.serial('RHEL Extension E2E Tests', () => {
       });
     });
 
+  test('Allow SSO extension accessing the SSO resource', async({ page }) => {
+    await handleConfirmationDialog(page, 'Allow Access', true, 'Allow', 'Deny', 10_000);
+  });
+
     test('On linux, we cannot activate the subscription when logging via SSO', async ({ page, navigationBar }) => {
       test.skip(!isLinux, 'Skipping on non-Linux platforms');
       await navigationBar.openDashboard();
