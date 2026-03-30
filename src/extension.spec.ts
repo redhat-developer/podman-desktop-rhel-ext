@@ -24,10 +24,11 @@ import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vites
 
 import * as authentication from './authentication';
 import { ImageCache } from './cache';
-import { activate } from './extension';
+import { activate, getJSONMachineListByProvider } from './extension';
 import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 import * as utils from './utils';
 import * as winutils from './win/utils';
+import { error } from 'node:console';
 
 vi.mock('./authentication');
 vi.mock('./utils');
@@ -638,4 +639,18 @@ describe('register', () => {
       runOptions: {},
     });
   });
+});
+
+test('Expect getJSONMachineListByProvider not to return error message for ENOENT', async () => {
+  vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockRejectedValueOnce(new Error('failed command, ENOENT'));
+
+  vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockRejectedValueOnce(new Error('failed command'));
+
+  const ENOENTError = await getJSONMachineListByProvider('wsl');
+
+  expect(ENOENTError).toStrictEqual({list: [], error: ''});
+
+  const otherError = await getJSONMachineListByProvider('wsl');
+
+  expect(otherError).toStrictEqual({list: [], error: 'Error: failed command'});
 });

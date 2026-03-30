@@ -181,7 +181,9 @@ export async function getJSONMachineListByProvider(vmProvider?: string): Promise
     // do not ensure binaries up to date here, as we don't want to trigger the upgrade at startup
     stdout = await macadam.listVms({ containerProvider: verifyContainerProivder(vmProvider ?? '') });
   } catch (err: unknown) {
-    stderr = `${err}`;
+    if (err && err instanceof Error && !err.message.includes('ENOENT')) {
+      stderr = `${err}`;
+    }
   }
   return {
     list: stdout,
