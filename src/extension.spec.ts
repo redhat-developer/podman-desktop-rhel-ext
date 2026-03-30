@@ -28,7 +28,6 @@ import { activate, getJSONMachineListByProvider } from './extension';
 import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 import * as utils from './utils';
 import * as winutils from './win/utils';
-import { error } from 'node:console';
 
 vi.mock('./authentication');
 vi.mock('./utils');
