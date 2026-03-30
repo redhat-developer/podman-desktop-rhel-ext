@@ -647,9 +647,9 @@ test('Expect getJSONMachineListByProvider not to return error message for ENOENT
 
   const ENOENTError = await getJSONMachineListByProvider('wsl');
 
-  expect(ENOENTError).toStrictEqual({list: [], error: ''});
+  expect(ENOENTError).toStrictEqual({ list: [], error: '' });
 
   const otherError = await getJSONMachineListByProvider('wsl');
 
-  expect(otherError).toStrictEqual({list: [], error: 'Error: failed command'});
+  expect(otherError).toStrictEqual({ list: [], error: 'Error: failed command' });
 });
