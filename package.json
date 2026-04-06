@@ -119,7 +119,7 @@
     "ssh2": "^1.17.0"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.3",
+    "@eslint/compat": "^2.0.4",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24",
@@ -127,7 +127,7 @@
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
     "@vitest/coverage-v8": "^4",
-    "eslint": "^10.1.0",
+    "eslint": "^10.2.0",
     "eslint-import-resolver-custom-alias": "^1.3.2",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-etc": "^2.0.3",
