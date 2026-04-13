@@ -138,7 +138,7 @@
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-sonarjs": "^4.0.2",
     "eslint-plugin-unicorn": "^64.0.0",
-    "globals": "^17.4.0",
+    "globals": "^17.5.0",
     "memfs": "^4.57.1",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.2",
