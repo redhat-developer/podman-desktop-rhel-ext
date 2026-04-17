@@ -115,8 +115,8 @@ importers:
         specifier: 1.59.1
         version: 1.59.1
       '@podman-desktop/tests-playwright':
-        specifier: ^1.26.1
-        version: 1.26.1
+        specifier: ^1.26.2
+        version: 1.26.2
       '@types/node':
         specifier: ^24
         version: 24.10.4
@@ -598,8 +598,8 @@ packages:
   '@podman-desktop/api@1.26.2':
     resolution: {integrity: sha512-LE8uo8PsyUG7gfrg0IW/Eib6SeZn717usJSwiuzpDMTSZJCTwlaXDeEADxMXLfsu6V9OKjZtgwJ7SAVzaeTV7A==}
 
-  '@podman-desktop/tests-playwright@1.26.1':
-    resolution: {integrity: sha512-hzHKJ2Bz28Ml5TIZuKkm0NsmApy1qtpQkB2qyH3vOfZ8MC+7icjzW6TD+68mhA58kWsbFRqIyOsS8uONVTbNSQ==}
+  '@podman-desktop/tests-playwright@1.26.2':
+    resolution: {integrity: sha512-ojFIMT6XraFxp1+cIjVP+mwDAWMZM5HsJrPiq6WQEqMj5elt94NRGqaAYHxKEl/JaXI6CTFHIHYnzaQPgSdcmw==}
 
   '@redocly/ajv@8.17.3':
     resolution: {integrity: sha512-NQsbJbB/GV7JVO88ebFkMndrnuGp/dTm5/2NISeg+JGcLzTfGBJZ01+V5zD8nKBOpi/dLLNFT+Ql6IcUk8ehng==}
@@ -3345,7 +3345,7 @@ snapshots:
 
   '@podman-desktop/api@1.26.2': {}
 
-  '@podman-desktop/tests-playwright@1.26.1': {}
+  '@podman-desktop/tests-playwright@1.26.2': {}
 
   '@redocly/ajv@8.17.3':
     dependencies:
