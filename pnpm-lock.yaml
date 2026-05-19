@@ -4,17 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  brace-expansion@<1.1.13: '>=1.1.13'
-  fast-uri@<=3.1.0: '>=3.1.1'
-  fast-uri@<=3.1.1: '>=3.1.2'
-  minimatch@<3.1.3: '>=3.1.3'
-  minimatch@<3.1.4: '>=3.1.4'
-  minimatch@>=9.0.0 <9.0.6: '>=9.0.6'
-  minimatch@>=9.0.0 <9.0.7: '>=9.0.7'
-  picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
-  rollup@>=4.0.0 <4.59.0: '>=4.59.0'
-
 importers:
 
   .:
@@ -1241,6 +1230,9 @@ packages:
   bcrypt-pbkdf@1.0.2:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==}
 
+  brace-expansion@1.1.14:
+    resolution: {integrity: sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==}
+
   brace-expansion@2.1.0:
     resolution: {integrity: sha512-TN1kCZAgdgweJhWWpgKYrQaMNHcDULHkWwQIspdtjV4Y5aurRdZpjAqn6yX3FPqTA9ngHCc4hJxMAMgGfve85w==}
 
@@ -1327,6 +1319,9 @@ packages:
 
   compare-versions@6.1.1:
     resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
+
+  concat-map@0.0.1:
+    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
   core-js-compat@3.49.0:
     resolution: {integrity: sha512-VQXt1jr9cBz03b331DFDCCP90b3fanciLkgiOoy8SBHy06gNf+vQ1A3WFLqG7I8TipYIKeYK9wxd0tUrvHcOZA==}
@@ -1681,7 +1676,7 @@ packages:
     resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
-      picomatch: '>=4.0.4'
+      picomatch: ^3 || ^4
     peerDependenciesMeta:
       picomatch:
         optional: true
@@ -2195,6 +2190,10 @@ packages:
   minimatch@5.1.9:
     resolution: {integrity: sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==}
     engines: {node: '>=10'}
+
+  minimatch@9.0.3:
+    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
+    engines: {node: '>=16 || 14 >=14.17'}
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
@@ -3655,7 +3654,7 @@ snapshots:
       debug: 4.4.3(supports-color@10.2.2)
       globby: 11.1.0
       is-glob: 4.0.3
-      minimatch: 10.2.5
+      minimatch: 9.0.3
       semver: 7.8.0
       ts-api-utils: 1.4.3(typescript@5.9.3)
     optionalDependencies:
@@ -3963,6 +3962,11 @@ snapshots:
     dependencies:
       tweetnacl: 0.14.5
 
+  brace-expansion@1.1.14:
+    dependencies:
+      balanced-match: 1.0.2
+      concat-map: 0.0.1
+
   brace-expansion@2.1.0:
     dependencies:
       balanced-match: 1.0.2
@@ -4043,6 +4047,8 @@ snapshots:
     optional: true
 
   compare-versions@6.1.1: {}
+
+  concat-map@0.0.1: {}
 
   core-js-compat@3.49.0:
     dependencies:
@@ -4361,7 +4367,7 @@ snapshots:
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
-      minimatch: 10.2.5
+      minimatch: 3.1.5
       object.fromentries: 2.0.8
       object.groupby: 1.0.3
       object.values: 1.2.1
@@ -5058,9 +5064,13 @@ snapshots:
 
   minimatch@3.1.5:
     dependencies:
-      brace-expansion: 5.0.6
+      brace-expansion: 1.1.14
 
   minimatch@5.1.9:
+    dependencies:
+      brace-expansion: 2.1.0
+
+  minimatch@9.0.3:
     dependencies:
       brace-expansion: 2.1.0
 
