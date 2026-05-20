@@ -1,5 +1,7 @@
 {
   "name": "rhel-vms",
+  "repository": "https://github.com/redhat-developer/podman-desktop-rhel-ext",
+  "homepage": "https://github.com/redhat-developer/podman-desktop-rhel-ext#readme",
   "displayName": "RHEL VMs",
   "description": "Create Red Hat Enterprise Linux VMs easily",
   "version": "0.13.0-next",
