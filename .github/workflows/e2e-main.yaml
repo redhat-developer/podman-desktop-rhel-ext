@@ -56,14 +56,14 @@ jobs:
       ORGANIZATION: ${{ inputs.organization || 'redhat-developer' }}
       BRANCH: ${{ inputs.branch || 'main' }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         if: github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
         with:
           repository: ${{ env.ORGANIZATION }}/${{ env.REPO }}
           ref: ${{ env.BRANCH }}
           path: ${{ env.REPO }}
 
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         if: github.event_name == 'push'
         with: 
           path: podman-desktop-rhel-ext
@@ -79,7 +79,7 @@ jobs:
           echo "REPOSITORY=$repository" >> $GITHUB_ENV
 
       # Checkout podman desktop
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           repository: podman-desktop/podman-desktop
           ref: main
