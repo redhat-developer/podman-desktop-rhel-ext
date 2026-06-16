@@ -256,6 +256,7 @@ async function registerProviderFor(
 ): Promise<void> {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
+      vmProviderConnection.error = undefined;
       try {
         await startMachine(provider, machineInfo, context, logger);
         vmProviderConnection.error = undefined;
@@ -266,6 +267,7 @@ async function registerProviderFor(
       }
     },
     stop: async (context, logger): Promise<void> => {
+      vmProviderConnection.error = undefined;
       try {
         await stopMachine(provider, machineInfo, context, logger);
         vmProviderConnection.error = undefined;
@@ -276,6 +278,7 @@ async function registerProviderFor(
       }
     },
     delete: async (logger): Promise<void> => {
+      vmProviderConnection.error = undefined;
       try {
         await macadamInitializer.ensureBinariesUpToDate();
         await macadam.removeVm({
