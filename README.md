@@ -160,7 +160,7 @@ You can use pnpm watch --extension-folder from the Podman Desktop directory to a
 Note: make sure you have the appropriate [pre-requisites](https://github.com/podman-desktop/podman-desktop/blob/main/CONTRIBUTING.md#prerequisites-prepare-your-environment) installed.
 
 ```
-git clone https://github.com/containers/podman-desktop
+git clone https://github.com/podman-desktop/podman-desktop
 git clone https://github.com/redhat-developer/podman-desktop-rhel-ext
 cd podman-desktop-rhel-ext
 pnpm install
