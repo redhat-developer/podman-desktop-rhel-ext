@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  minimatch@>=9.0.0 <9.0.6: ^9.0.6
+
 importers:
 
   .:
@@ -2057,8 +2060,8 @@ packages:
     resolution: {integrity: sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==}
     engines: {node: '>=10'}
 
-  minimatch@9.0.3:
-    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
+  minimatch@9.0.9:
+    resolution: {integrity: sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg==}
     engines: {node: '>=16 || 14 >=14.17'}
 
   minimist@1.2.8:
@@ -3375,7 +3378,7 @@ snapshots:
       debug: 4.4.3(supports-color@10.2.2)
       globby: 11.1.0
       is-glob: 4.0.3
-      minimatch: 9.0.3
+      minimatch: 9.0.9
       semver: 7.8.4
       ts-api-utils: 1.4.3(typescript@5.9.3)
     optionalDependencies:
@@ -4794,7 +4797,7 @@ snapshots:
     dependencies:
       brace-expansion: 2.1.1
 
-  minimatch@9.0.3:
+  minimatch@9.0.9:
     dependencies:
       brace-expansion: 2.1.1
 
