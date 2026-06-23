@@ -403,8 +403,18 @@ bla bla
         expect(provider.updateStatus).toHaveBeenCalledWith('ready');
       });
 
+      test('connection is initialized with error property set to undefined', async () => {
+        await activate(extensionContext);
+        await vi.waitFor(() => {
+          expect(provider.registerVmProviderConnection).toHaveBeenCalledOnce();
+        });
+        const call = vi.mocked(provider.registerVmProviderConnection).mock.calls[0];
+        expect(call[0].error).toBeUndefined();
+      });
+
       describe('start', async () => {
         let lifecycle: extensionApi.ProviderConnectionLifecycle;
+        let vmProviderConnection: extensionApi.VmProviderConnection;
         beforeEach(async () => {
           vi.mocked(provider.updateStatus).mockClear();
           await activate(extensionContext);
@@ -415,6 +425,7 @@ bla bla
           const call = vi.mocked(provider.registerVmProviderConnection).mock.calls[0];
           assert(!!call[0].lifecycle);
           lifecycle = call[0].lifecycle;
+          vmProviderConnection = call[0];
         });
 
         test('calling start which fails', async () => {
@@ -426,6 +437,7 @@ bla bla
               log: logger,
             }),
           ).rejects.toThrowError('an error');
+          expect(vmProviderConnection.error).toBe('an error');
         });
 
         describe('calling start which works correctly', async () => {
@@ -448,6 +460,7 @@ bla bla
               },
             });
             expect(provider.updateStatus).toHaveBeenCalledWith('started');
+            expect(vmProviderConnection.error).toBeUndefined();
           });
 
           test('calling stop which fails', async () => {
@@ -459,6 +472,7 @@ bla bla
                 log: logger,
               }),
             ).rejects.toThrowError('an error');
+            expect(vmProviderConnection.error).toBe('an error');
           });
 
           describe('calling stop which works correctly', async () => {
@@ -481,12 +495,14 @@ bla bla
                 },
               });
               expect(provider.updateStatus).toHaveBeenCalledWith('stopped');
+              expect(vmProviderConnection.error).toBeUndefined();
             });
 
             test('calling delete which fails', async () => {
               vi.mocked(macadamJSPackage.Macadam.prototype.removeVm).mockRejectedValue('an error');
               assert(!!lifecycle.delete);
               await expect(lifecycle.delete()).rejects.toThrowError('an error');
+              expect(vmProviderConnection.error).toBe('an error');
             });
 
             describe('calling delete which works correctly', async () => {
@@ -501,6 +517,7 @@ bla bla
                   name: 'vm1',
                   runOptions: {},
                 });
+                expect(vmProviderConnection.error).toBeUndefined();
               });
             });
           });

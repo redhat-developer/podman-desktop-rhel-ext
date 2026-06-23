@@ -256,18 +256,42 @@ async function registerProviderFor(
 ): Promise<void> {
   const lifecycle: extensionApi.ProviderConnectionLifecycle = {
     start: async (context, logger): Promise<void> => {
-      await startMachine(provider, machineInfo, context, logger);
+      vmProviderConnection.error = undefined;
+      try {
+        await startMachine(provider, machineInfo, context, logger);
+        vmProviderConnection.error = undefined;
+      } catch (err) {
+        vmProviderConnection.error = err instanceof Error ? err.message : String(err);
+        console.error(err);
+        throw err;
+      }
     },
     stop: async (context, logger): Promise<void> => {
-      await stopMachine(provider, machineInfo, context, logger);
+      vmProviderConnection.error = undefined;
+      try {
+        await stopMachine(provider, machineInfo, context, logger);
+        vmProviderConnection.error = undefined;
+      } catch (err) {
+        vmProviderConnection.error = err instanceof Error ? err.message : String(err);
+        console.error(err);
+        throw err;
+      }
     },
     delete: async (logger): Promise<void> => {
-      await macadamInitializer.ensureBinariesUpToDate();
-      await macadam.removeVm({
-        name: machineInfo.name,
-        containerProvider: verifyContainerProivder(machineInfo.vmType),
-        runOptions: { logger },
-      });
+      vmProviderConnection.error = undefined;
+      try {
+        await macadamInitializer.ensureBinariesUpToDate();
+        await macadam.removeVm({
+          name: machineInfo.name,
+          containerProvider: verifyContainerProivder(machineInfo.vmType),
+          runOptions: { logger },
+        });
+        vmProviderConnection.error = undefined;
+      } catch (err) {
+        vmProviderConnection.error = err instanceof Error ? err.message : String(err);
+        console.error(err);
+        throw err;
+      }
     },
   };
 
@@ -279,6 +303,7 @@ async function registerProviderFor(
     status: () => macadamMachinesStatuses.get(machineInfo.image) ?? 'unknown',
     shellAccess: providerConnectionShellAccess,
     lifecycle,
+    error: undefined,
   };
 
   const disposable = provider.registerVmProviderConnection(vmProviderConnection);
