@@ -218,4 +218,17 @@ export default [
       'sonarjs/publicly-writable-directories': 'off',
     },
   },
+
+  {
+    // Playwright tests use `playExpect` (not `expect`), which sonarjs/assertions-in-tests
+    // does not recognize (it only matches identifiers starting with "expect").
+    // Playwright's `test.skip(condition)` is a valid conditional skip pattern that
+    // sonarjs/no-skipped-tests incorrectly treats as an abandoned test.
+    files: ['tests/playwright/**/*.spec.ts'],
+
+    rules: {
+      'sonarjs/assertions-in-tests': 'off',
+      'sonarjs/no-skipped-tests': 'off',
+    },
+  },
 ];
