@@ -113,7 +113,7 @@
     "build-image": "pnpm cleanup && podman build . -f build/Containerfile"
   },
   "dependencies": {
-    "@crc-org/macadam.js": "0.7.0",
+    "@crc-org/macadam.js": "0.8.0",
     "@podman-desktop/api": "1.28.2",
     "compare-versions": "^6.1.1",
     "openapi-fetch": "^0.17.0",
