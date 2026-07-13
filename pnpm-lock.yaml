@@ -14,8 +14,8 @@ importers:
   .:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.7.0
-        version: 0.7.0
+        specifier: 0.8.0
+        version: 0.8.0
       '@podman-desktop/api':
         specifier: 1.28.2
         version: 1.28.2
@@ -162,8 +162,8 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@crc-org/macadam.js@0.7.0':
-    resolution: {integrity: sha512-IaAPzw5k8vDQzgTGQWwFNEqelXyoYmyzMDA7c3QwTQYlRP1iv2pv0C4YGYUztF5p4s0yQmTviL2uppWxNEIKwA==}
+  '@crc-org/macadam.js@0.8.0':
+    resolution: {integrity: sha512-bxhKHjpUu0Ap7YiDI2CDUhW+xmGpgtovlADuhKGJJ8DatdNDxm7SD1KCodX5BBkXfFQl/MTO8Ow/W4hv24b8cA==}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -2703,7 +2703,7 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@crc-org/macadam.js@0.7.0':
+  '@crc-org/macadam.js@0.8.0':
     dependencies:
       '@podman-desktop/api': 1.28.2
       semver: 7.8.5
