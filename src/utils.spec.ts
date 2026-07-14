@@ -40,7 +40,7 @@ test('verifyContainerProivder', () => {
   expect(verifyContainerProivder('wsl')).toBe('wsl');
   expect(verifyContainerProivder('applehv')).toBe('applehv');
   expect(verifyContainerProivder('hyperv')).toBe('hyperv');
-  expect(verifyContainerProivder('someOtherProvider')).toBe(undefined);
+  expect(verifyContainerProivder('someOtherProvider')).toBeUndefined();
 });
 
 test('pullImageFromRedHatRegistry', async () => {
