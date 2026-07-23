@@ -134,7 +134,7 @@ jobs:
           echo "DVLPR_PASSWORD=${DVLPR_PASSWORD}" >> secrets.txt
 
       - name: Create instance
-        uses: podman-desktop/e2e/.github/actions/create-instance@36e440f2ac18193214f4ffa8f7f1c4c0cb8c9446
+        uses: podman-desktop/e2e/.github/actions/create-instance@213a276952d746324895f63cea0b23083013990f
         with:
           mapt-image: ${{ env.MAPT_IMAGE || '' }}
           mapt-version: ${{ env.MAPT_VERSION_TAG || '' }}
@@ -168,7 +168,7 @@ jobs:
           env-vars: ${{ env.ENV_VARS }}
 
       - name: Run Podman Desktop Playwright E2E tests
-        uses: podman-desktop/e2e/.github/actions/run-playwright-test@db37fcfe19c2265b4840460fa5fed1f130d9a634
+        uses: podman-desktop/e2e/.github/actions/run-playwright-test@3be2732e73c25503264a00890b78a1d03f6ad718
         with:
           pde2e-runner-tag: ${{ env.PDE2E_IMAGE_VERSION }}
           podman-desktop-path: true
