@@ -42,9 +42,9 @@ on:
         description: 'npm target to run tests'
         type: string
         required: true
-      podman_remote_url:
-        default: 'https://github.com/podman-container-tools/podman/releases/download/v5.6.1/podman-5.6.1-setup.exe'
-        description: 'podman remote setup exe'
+      podman_version:
+        default: 'latest'
+        description: 'Podman version (use "latest" to auto-fetch latest release, or specify version like "v5.6.1")'
         type: string
         required: true
       podman_options:
@@ -90,11 +90,14 @@ jobs:
             windows-featurepack: '22h2-ent'
 
     steps:
-      - name: Get Podman version used by Desktop
-        run: |
-          version=$(curl https://raw.githubusercontent.com/podman-desktop/podman-desktop/main/extensions/podman/packages/extension/src/podman5.json | jq -r '.version')
-          echo "Default Podman Version from Podman Desktop: ${version}"
-          echo "PD_PODMAN_VERSION=${version}" >> $GITHUB_ENV
+      - name: Fetch latest Podman version
+        id: fetch-podman
+        uses: redhat-actions/podman-install/.github/actions/fetch-latest-podman-version-windows@aea6ff44f2a4a82da13d22061ce73443a125925d
+        with:
+          version_input: ${{ github.event.inputs.podman_version || 'latest' }}
+          file_type: 'msi'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Set the default env. variables
         env:
           DEFAULT_PODMAN_DESKTOP_REPO_ARGS: 'REPO=podman-desktop,FORK=podman-desktop,BRANCH=main'
@@ -104,8 +107,7 @@ jobs:
           DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
           DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=0'
           DEFAULT_EXT_REPO_OPTIONS: 'REPO=podman-desktop-rhel-ext,FORK=redhat-developer,BRANCH=main'
-          DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
-          DEFAULT_URL: 'https://github.com/podman-container-tools/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
+          DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.8.5' }}"
           DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3'
           DEFAULT_MAPT_PARAMS: 'IMAGE=${{ vars.MAPT_IMAGE || ''quay.io/redhat-developer/mapt'' }};VERSION_TAG=${{ vars.MAPT_VERSION_TAG || ''v0.9.8'' }};CPUS=${{ vars.MAPT_CPUS || ''8  '' }};MEMORY=${{ vars.MAPT_MEMORY || ''32'' }};EXCLUDED_REGIONS="${{ vars.MAPT_EXCLUDED_REGIONS || ''westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest'' }}"'
         run: |
