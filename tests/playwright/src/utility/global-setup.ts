@@ -18,6 +18,12 @@
 
 import { playwrightGlobalSetup } from '@podman-desktop/tests-playwright';
 
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export default async function globalSetup(): Promise<void> {
   await playwrightGlobalSetup();
+  await delay(2_000);
+  console.log('Global setup completed');
 }
