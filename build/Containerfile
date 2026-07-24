@@ -19,7 +19,7 @@ FROM ghcr.io/redhat-developer/podman-desktop-rhel-ext-builder:next AS builder
 
 COPY . .
 
-RUN pnpm --frozen-lockfile install && \
+RUN CI=true pnpm --frozen-lockfile install && \
     pnpm build
 
 RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependencies.\"$1\".version"; };' && \

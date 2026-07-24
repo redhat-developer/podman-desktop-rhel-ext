@@ -18,16 +18,13 @@
 # v10.1-1766363988
 FROM registry.access.redhat.com/ubi10/nodejs-24@sha256:5a3cea874f0555bcde27d979bbc8a067f1d75b4b324ef3274112c8270e951f5b
 USER root
-RUN dnf install -y jq
+RUN dnf install -y jq && npm i -g corepack && corepack enable
 USER default
 
 COPY package.json .
 COPY pnpm-lock.yaml .
 COPY pnpm-workspace.yaml .
 COPY tests/playwright/package.json tests/playwright/package.json
-COPY .npmrc .npmrc
 
-RUN PNPM_VERSION=$(cat package.json | jq .packageManager | sed -E 's|.*pnpm@([0-9.]+).*|\1|') && \
-    echo Installing pnpm version ${PNPM_VERSION} && \
-    npm install --global pnpm@${PNPM_VERSION} && \
-    pnpm --frozen-lockfile install
+RUN corepack install && \
+    CI=true pnpm --frozen-lockfile install
