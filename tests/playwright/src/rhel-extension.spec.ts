@@ -79,6 +79,8 @@ test.use({
 });
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
+  test.setTimeout(180_000);
+  
   runner.setVideoAndTraceName('rhel-extension-e2e');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
