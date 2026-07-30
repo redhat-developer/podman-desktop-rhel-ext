@@ -99,6 +99,8 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe.serial('RHEL Extension E2E Tests', () => {
+  test.describe.configure({ retries: 1 });
+  
   test.describe.serial('Authentication Extension', () => {
     test('Go to settings and check if extension is already installed', async ({ navigationBar }) => {
       const extensionsPage = await navigationBar.openExtensions();

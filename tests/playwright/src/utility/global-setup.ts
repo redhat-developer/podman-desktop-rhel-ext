@@ -20,4 +20,5 @@ import { playwrightGlobalSetup } from '@podman-desktop/tests-playwright';
 
 export default async function globalSetup(): Promise<void> {
   await playwrightGlobalSetup();
+  console.log('Global setup completed');
 }
