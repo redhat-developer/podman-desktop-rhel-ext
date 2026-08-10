@@ -218,4 +218,13 @@ export default [
       'sonarjs/publicly-writable-directories': 'off',
     },
   },
+
+  {
+    files: ['tests/playwright/**'],
+
+    rules: {
+      'sonarjs/assertions-in-tests': 'off',
+      'sonarjs/no-skipped-tests': 'off',
+    },
+  },
 ];
