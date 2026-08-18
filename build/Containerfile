@@ -17,6 +17,11 @@
 
 FROM ghcr.io/redhat-developer/podman-desktop-rhel-ext-builder:next AS builder
 
+# pnpm runs an implicit dependency check before `run` scripts, which spawns a
+# nested `pnpm install`. Setting CI here rather than per-RUN makes every pnpm
+# invocation non-interactive, otherwise that nested install blocks on a prompt.
+ENV CI=true
+
 COPY . .
 
 RUN pnpm --frozen-lockfile install && \
@@ -27,7 +32,7 @@ RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependen
         SSH2_VERSION=$(dep_version "ssh2") && \
         echo adding @crc-org/macadam.js version ${MACADAM_VERSION} && \
         echo adding ssh2 version ${SSH2_VERSION} && \
-        pnpm --ignore-workspace --dir /opt/app-root/src/dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
+        pnpm --ignore-workspace --ignore-scripts --dir /opt/app-root/src/dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
 
 FROM scratch
 
