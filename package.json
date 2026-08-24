@@ -28,7 +28,11 @@
         },
         "rhel-vms.factory.machine.image": {
           "type": "string",
-          "enum": ["RHEL 10", "RHEL 9", "local image on disk"],
+          "enum": [
+            "RHEL 10",
+            "RHEL 9",
+            "local image on disk"
+          ],
           "scope": "VmProviderConnectionFactory",
           "default": "RHEL 10",
           "description": "Image to download"
@@ -149,16 +153,5 @@
     "vite": "^8.2.1",
     "vitest": "^4"
   },
-  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
-  "pnpm": {
-    "overrides": {
-      "minimatch@>=9.0.0 <9.0.6": "^9.0.6",
-      "esbuild@>=0.17.0 <0.28.1": ">=0.28.1",
-      "brace-expansion@^1": "^1.1.17",
-      "brace-expansion@^2": "^2.1.4",
-      "brace-expansion@^5": "^5.0.9",
-      "js-yaml@<4.3.0": "^4.3.0",
-      "fast-uri@>=3.0.0 <3.1.4": "^3.1.4"
-    }
-  }
+  "packageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621"
 }
