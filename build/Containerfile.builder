@@ -28,4 +28,4 @@ COPY tests/playwright/package.json tests/playwright/package.json
 COPY .npmrc .npmrc
 
 RUN corepack enable && corepack install && \
-    CI=true pnpm --frozen-lockfile install
+    CI=true pnpm install
