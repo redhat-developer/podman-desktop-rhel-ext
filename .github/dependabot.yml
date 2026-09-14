@@ -45,3 +45,8 @@ updates:
         patterns:
           - "@typescript-eslint/*"
           - "typescript-eslint"
+      vitest:
+        applies-to: version-updates
+        patterns:
+          - "@vitest/*"
+          - "vitest"
