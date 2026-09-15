@@ -21,11 +21,16 @@ USER root
 RUN dnf install -y jq && npm i -g corepack && corepack enable
 USER default
 
+# pnpm runs an implicit dependency check before `run` scripts, which spawns a
+# nested `pnpm install`. Setting CI here rather than per-RUN makes every pnpm
+# invocation non-interactive, otherwise that nested install blocks on a prompt.
+# Images built FROM this one inherit it.
+ENV CI=true
+
 COPY package.json .
 COPY pnpm-lock.yaml .
 COPY pnpm-workspace.yaml .
 COPY tests/playwright/package.json tests/playwright/package.json
-COPY .npmrc .npmrc
 
 RUN corepack enable && corepack install && \
-    CI=true pnpm install
+    pnpm install
