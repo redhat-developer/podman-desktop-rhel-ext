@@ -51,6 +51,7 @@ vi.mock('@crc-org/macadam.js', async () => {
   Macadam.prototype.executeCommand = vi.fn();
   Macadam.prototype.areBinariesAvailable = vi.fn();
   Macadam.prototype.ensureBinariesUpToDate = vi.fn();
+  Macadam.prototype.getVersion = vi.fn();
   return { Macadam };
 });
 vi.mock('./macadam-machine-stream.js', async () => {
@@ -75,17 +76,25 @@ describe('activate', () => {
     setVmProviderConnectionFactory: vi.fn(),
     registerVmProviderConnection: vi.fn(),
     updateStatus: vi.fn(),
+    updateVersion: vi.fn(),
   } as unknown as extensionApi.Provider;
 
   beforeEach(async () => {
     vi.mocked(extensionApi.provider.createProvider).mockReturnValue(provider);
     vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(true);
     vi.mocked(macadamJSPackage.Macadam.prototype.ensureBinariesUpToDate).mockResolvedValue();
+    vi.mocked(macadamJSPackage.Macadam.prototype.getVersion).mockResolvedValue('1.2.3');
   });
 
   test('macadam library is initialized', async () => {
     await activate(extensionContext);
     expect(macadamJSPackage.Macadam.prototype.init).toHaveBeenCalledOnce();
+  });
+
+  test('macadam version is retrieved and provider is updated', async () => {
+    await activate(extensionContext);
+    expect(macadamJSPackage.Macadam.prototype.getVersion).toHaveBeenCalledOnce();
+    expect(provider.updateVersion).toHaveBeenCalledWith('1.2.3');
   });
 
   test('createCliTool is called and its result is added to subscriptions', async () => {
@@ -94,6 +103,21 @@ describe('activate', () => {
     await activate(extensionContext);
     expect(extensionApi.cli.createCliTool).toHaveBeenCalled();
     expect(extensionContext.subscriptions.push).toHaveBeenCalledWith(cliTool);
+  });
+
+  test('createCliTool is called with version', async () => {
+    const cliTool = {} as extensionApi.CliTool;
+    vi.mocked(extensionApi.cli.createCliTool).mockReturnValue(cliTool);
+    await activate(extensionContext);
+    expect(extensionApi.cli.createCliTool).toHaveBeenCalledWith({
+      name: 'macadam',
+      images: {
+        icon: './icon.png',
+      },
+      displayName: 'Macadam',
+      markdownDescription: 'macadam CLI can help you run RHEL and other linux-based VMs',
+      version: '1.2.3',
+    });
   });
 
   test('createProvider is called and its result is added to subscriptions', async () => {
@@ -573,6 +597,7 @@ describe('register', () => {
     setVmProviderConnectionFactory: vi.fn(),
     registerVmProviderConnection: vi.fn(),
     updateStatus: vi.fn(),
+    updateVersion: vi.fn(),
   } as unknown as extensionApi.Provider;
 
   const authClient: SubscriptionManagerClientV1 = {
