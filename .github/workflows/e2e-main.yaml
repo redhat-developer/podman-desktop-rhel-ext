@@ -51,6 +51,7 @@ jobs:
     name: Red Hat RHEL VM Extension E2E tests
     runs-on: ubuntu-24.04
     env: 
+      KEEP_VIDEOS_ON_PASS: 'true'
       MODE: ${{ inputs.mode || 'production' }}
       REPO: ${{ inputs.repositoryName || 'podman-desktop-rhel-ext' }}
       ORGANIZATION: ${{ inputs.organization || 'redhat-developer' }}
