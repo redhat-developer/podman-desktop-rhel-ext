@@ -27,12 +27,14 @@ COPY . .
 RUN pnpm --frozen-lockfile install && \
     pnpm build
 
+# --ignore-workspace skips pnpm-workspace.yaml, so set the hoisted linker
+# explicitly to avoid symlinks that break when Podman Desktop installs the image.
 RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependencies.\"$1\".version"; };' && \
         MACADAM_VERSION=$(dep_version "@crc-org/macadam.js") && \
         SSH2_VERSION=$(dep_version "ssh2") && \
         echo adding @crc-org/macadam.js version ${MACADAM_VERSION} && \
         echo adding ssh2 version ${SSH2_VERSION} && \
-        pnpm --ignore-workspace --ignore-scripts --dir /opt/app-root/src/dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
+        pnpm --ignore-workspace --ignore-scripts --config.node-linker=hoisted --dir /opt/app-root/src/dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
 
 FROM scratch
 
