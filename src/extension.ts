@@ -112,7 +112,6 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   const macadamVersion = await macadam.getVersion();
   provider.updateVersion(macadamVersion);
 
-
   // create cli tool for the cliTool page in desktop
   const macadamCli = extensionApi.cli.createCliTool({
     name: MACADAM_CLI_NAME,
@@ -121,7 +120,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     },
     displayName: MACADAM_CLI_DISPLAY_NAME,
     markdownDescription: MACADAM_CLI_MARKDOWN,
-    version: macadamVersion
+    version: macadamVersion,
   });
 
   extensionContext.subscriptions.push(macadamCli);
