@@ -131,17 +131,10 @@ jobs:
           pnpm install
           pnpm test:e2e:build
 
-      - name: Build Podman Desktop for E2E tests Production Mode
-        working-directory: ./podman-desktop
-        if: ${{ env.MODE == 'production' }} 
-        env:
-          ELECTRON_ENABLE_INSPECT: true
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm compile:current --linux dir
-          path=$(realpath ./dist/linux-unpacked/podman-desktop)
-          echo "Podman Desktop built binary: $path"
-          echo "PODMAN_DESKTOP_BINARY_PATH=$path" >> $GITHUB_ENV
+      - name: Install Podman Desktop
+        uses: podman-desktop/gh-extensions-actions/.github/actions/podman-desktop-install@3c89b3ea20c3262cb0f05894d0da4354d8c269a6 # v0.9.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Execute pnpm in Red Hat RHEL VM Extension
         working-directory: ${{ env.REPOSITORY }}
@@ -168,7 +161,7 @@ jobs:
         working-directory: ${{ env.REPOSITORY }}
         if: ${{ env.MODE == 'production' }}
         env:
-          PODMAN_DESKTOP_BINARY: ${{ env.PODMAN_DESKTOP_BINARY_PATH }}
+          PODMAN_DESKTOP_BINARY: ${{ env.PODMAN_DESKTOP_BINARY }}
           DVLPR_USERNAME: ${{ secrets.DVLPR_USERNAME }}
           DVLPR_PASSWORD: ${{ secrets.DVLPR_PASSWORD }}
           AUTH_E2E_TESTS: true
