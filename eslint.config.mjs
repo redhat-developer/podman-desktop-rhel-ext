@@ -27,7 +27,6 @@ import { FlatCompat } from '@eslint/eslintrc';
 import unicorn from 'eslint-plugin-unicorn';
 import noNull from 'eslint-plugin-no-null';
 import sonarjs from 'eslint-plugin-sonarjs';
-import etc from 'eslint-plugin-etc';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import fileProgress from 'eslint-plugin-file-progress';
 
@@ -61,7 +60,7 @@ export default [
   ...typescriptLint.configs.recommended,
   sonarjs.configs.recommended,
   ...fixupConfigRules(
-    compat.extends('plugin:import/recommended', 'plugin:import/typescript', 'plugin:etc/recommended'),
+    compat.extends('plugin:import/recommended', 'plugin:import/typescript'),
   ),
   {
     plugins: {
@@ -70,7 +69,6 @@ export default [
       // non-compliant v10 plug-ins
       'file-progress': fixupPluginRules(fileProgress),
       // non-compliant v9 plug-ins
-      etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
       'no-null': fixupPluginRules(noNull),
       'simple-import-sort': fixupPluginRules(simpleImportSort),
@@ -162,6 +160,7 @@ export default [
 
       // unicorn custom rules
       'unicorn/prefer-node-protocol': 'error',
+      'unicorn/no-array-sort': 'error',
 
       // sonarjs custom rules
       'sonarjs/cognitive-complexity': 'off',
@@ -191,11 +190,6 @@ export default [
       // failing with the AST parser
       'sonarjs/sonar-no-fallthrough': 'off',
       'sonarjs/prefer-enum-initializers': 'off',
-
-      // etc custom rules
-      'etc/no-deprecated': 'off',
-      // disable this rule as it's not compliant with eslint v9
-      'etc/no-commented-out-code': 'off',
 
       // simple-import-sort custom rules
       'simple-import-sort/imports': 'error',
