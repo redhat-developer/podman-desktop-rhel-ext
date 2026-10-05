@@ -28,7 +28,6 @@ import unicorn from 'eslint-plugin-unicorn';
 import noNull from 'eslint-plugin-no-null';
 import sonarjs from 'eslint-plugin-sonarjs';
 import etc from 'eslint-plugin-etc';
-import redundantUndefined from 'eslint-plugin-redundant-undefined';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import fileProgress from 'eslint-plugin-file-progress';
 
@@ -74,7 +73,6 @@ export default [
       etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
       'no-null': fixupPluginRules(noNull),
-      'redundant-undefined': fixupPluginRules(redundantUndefined),
       'simple-import-sort': fixupPluginRules(simpleImportSort),
     },
     settings: {
@@ -198,9 +196,6 @@ export default [
       'etc/no-deprecated': 'off',
       // disable this rule as it's not compliant with eslint v9
       'etc/no-commented-out-code': 'off',
-
-      // redundant-undefined custom rules
-      'redundant-undefined/redundant-undefined': 'error',
 
       // simple-import-sort custom rules
       'simple-import-sort/imports': 'error',
