@@ -141,7 +141,7 @@
     "globals": "^17.13.0",
     "memfs": "^4.80.0",
     "openapi-typescript": "^7.13.0",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.3",
