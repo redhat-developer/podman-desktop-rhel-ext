@@ -24,7 +24,7 @@
           "type": "string",
           "scope": "VmProviderConnectionFactory",
           "default": "rhel",
-          "description": "Machine Name"
+          "description": "Machine name"
         },
         "rhel-vms.factory.machine.image": {
           "type": "string",
@@ -45,7 +45,7 @@
           "format": "file",
           "scope": "VmProviderConnectionFactory",
           "default": "",
-          "description": "Image Path",
+          "description": "Image path",
           "when": "rhel-vms.localImage"
         },
         "rhel-vms.factory.machine.register": {
