@@ -15,36 +15,43 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM ghcr.io/redhat-developer/podman-desktop-rhel-ext-builder:next AS builder
+FROM registry.access.redhat.com/ubi10/nodejs-24-minimal:1791463197@sha256:498ccfc43f6fe349a4d87db6af6d83ab420e9450f3800140cdc90c290dcd462f AS builder
+
+WORKDIR /opt/app-root/src
 
 # pnpm runs an implicit dependency check before `run` scripts, which spawns a
 # nested `pnpm install`. Setting CI here rather than per-RUN makes every pnpm
 # invocation non-interactive, otherwise that nested install blocks on a prompt.
 ENV CI=true
 
-COPY . .
+COPY --chown=1001:1001 . .
 
-RUN pnpm --frozen-lockfile install && \
-    pnpm build
+RUN npm i -g corepack@0.36.0 && corepack enable
 
-# --ignore-workspace skips pnpm-workspace.yaml, so set the hoisted linker
-# explicitly to avoid symlinks that break when Podman Desktop installs the image.
-RUN eval 'dep_version() { pnpm list -P $1 --json --depth 0 |jq -r ".[0].dependencies.\"$1\".version"; };' && \
-        MACADAM_VERSION=$(dep_version "@crc-org/macadam.js") && \
-        SSH2_VERSION=$(dep_version "ssh2") && \
-        echo adding @crc-org/macadam.js version ${MACADAM_VERSION} && \
-        echo adding ssh2 version ${SSH2_VERSION} && \
-        pnpm --ignore-workspace --ignore-scripts --config.node-linker=hoisted --dir /opt/app-root/src/dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
+RUN pnpm install
+RUN pnpm build
+
+# ssh2 is external to the bundle and @crc-org/macadam.js resolves its binaries/
+# folder at runtime, so both are installed into dist/node_modules, at the
+# versions resolved by the lockfile (node_modules is hoisted).
+RUN SSH2_VERSION=$(node -p "require('./node_modules/ssh2/package.json').version") && \
+    MACADAM_VERSION=$(node -p "require('./node_modules/@crc-org/macadam.js/package.json').version") && \
+    echo "adding ssh2 version ${SSH2_VERSION} and @crc-org/macadam.js version ${MACADAM_VERSION}" && \
+    pnpm --ignore-workspace --ignore-scripts --config.node-linker=hoisted --dir dist add ssh2@${SSH2_VERSION} @crc-org/macadam.js@${MACADAM_VERSION}
+
+# Assemble the extension layout, so the final stage is a single COPY
+RUN mkdir -p /opt/app-root/extension
+RUN cp -r dist /opt/app-root/extension/
+RUN cp package.json /opt/app-root/extension/
+RUN cp icon.png /opt/app-root/extension/
+RUN cp LICENSE /opt/app-root/extension/
+RUN cp README.md /opt/app-root/extension/
 
 FROM scratch
+
+COPY --from=builder /opt/app-root/extension /extension
 
 LABEL org.opencontainers.image.title="RHEL extension" \
       org.opencontainers.image.description="RHEL extension" \
       org.opencontainers.image.vendor="podman-desktop" \
       io.podman-desktop.api.version=">= 1.17.0"
-
-COPY package.json /extension/
-COPY LICENSE /extension/
-COPY icon.png /extension/
-COPY README.md /extension/
-COPY --from=builder /opt/app-root/src/dist /extension/dist
