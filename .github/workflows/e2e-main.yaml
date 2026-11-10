@@ -93,7 +93,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: 'podman-desktop-rhel-ext/.nvmrc'
 
       - name: Update podman v5.x
         uses: redhat-actions/podman-install@16601a3a718acf7d6986140459092a2f5b941a03
