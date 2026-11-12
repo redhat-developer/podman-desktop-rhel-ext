@@ -106,52 +106,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
   
-  builder-image:
-    name: Build and publish builder OCI image
-    needs: tag
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.tag.outputs.githubTag }}
-
-      - name: Install qemu dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-
-      - name: build builder image
-        id: builder-image
-        uses: redhat-actions/buildah-build@v3
-        with:
-          image: podman-desktop-rhel-ext-builder
-          tags: latest next ${{ needs.tag.outputs.RHELExtensionVersion }}
-          platforms: linux/amd64, linux/arm64
-          containerfiles: |
-            build/Containerfile.builder
-          context: .
-          oci: true
-
-      - name: Log in to ghcr.io
-        uses: redhat-actions/podman-login@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: publish builder to ghcr.io
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v3
-        with:
-          image: ${{ steps.builder-image.outputs.image }}
-          tags: ${{ steps.builder-image.outputs.tags }}
-          registry: ghcr.io/${{ github.repository_owner }}
-
   extension-image:
     name: Build and publish extension OCI image
     runs-on: ubuntu-24.04
-    needs: [builder-image, tag]
+    needs: tag
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
