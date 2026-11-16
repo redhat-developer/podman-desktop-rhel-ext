@@ -124,6 +124,6 @@ jobs:
           tags: ${{ github.sha }}
           archs: amd64, arm64
           containerfiles: |
-            build/Containerfile
+            ./Containerfile
           context: .
           oci: true
