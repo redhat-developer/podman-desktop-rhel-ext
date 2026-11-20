@@ -25,6 +25,7 @@ import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vites
 import * as authentication from './authentication';
 import { ImageCache } from './cache';
 import { activate } from './extension';
+import { ProviderConnectionShellAccessImpl } from './macadam-machine-stream';
 import type { SubscriptionManagerClientV1 } from './rh-api/rh-api-sm';
 import * as utils from './utils';
 import * as winutils from './win/utils';
@@ -545,6 +546,99 @@ bla bla
               });
             });
           });
+        });
+      });
+
+      describe('status while stopping', async () => {
+        let lifecycle: extensionApi.ProviderConnectionLifecycle;
+        let vmProviderConnection: extensionApi.VmProviderConnection;
+        let resolveStop: () => void;
+        let rejectStop: (err: unknown) => void;
+        const vmDetails = {
+          Name: 'vm1',
+          Image: '/path/to/image1',
+          CPUs: 1,
+          Memory: '1GB',
+          DiskSize: '1GB',
+          Running: true,
+          Starting: false,
+          Port: 80,
+          RemoteUsername: 'user',
+          IdentityPath: '/path/to/id1',
+          VMType: 'applehv',
+        };
+
+        beforeEach(async () => {
+          vi.useFakeTimers();
+          vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([vmDetails]);
+          vi.mocked(macadamJSPackage.Macadam.prototype.stopVm).mockReturnValue(
+            new Promise<extensionApi.RunResult>((resolve, reject) => {
+              resolveStop = (): void => resolve({} as extensionApi.RunResult);
+              rejectStop = reject;
+            }),
+          );
+          await activate(extensionContext);
+          await vi.waitFor(() => {
+            expect(provider.registerVmProviderConnection).toHaveBeenCalledOnce();
+          });
+          const call = vi.mocked(provider.registerVmProviderConnection).mock.calls[0];
+          assert(!!call[0].lifecycle);
+          lifecycle = call[0].lifecycle;
+          vmProviderConnection = call[0];
+          await vi.waitFor(() => {
+            expect(vmProviderConnection.status()).toBe('started');
+          });
+        });
+
+        afterEach(() => {
+          vi.useRealTimers();
+        });
+
+        test('shell access gets the status of the machine', () => {
+          expect(ProviderConnectionShellAccessImpl).toHaveBeenCalledWith(
+            expect.objectContaining({ name: 'vm1' }),
+            expect.any(Function),
+          );
+          const getStatus = vi.mocked(ProviderConnectionShellAccessImpl).mock.calls[0][1];
+          expect(getStatus()).toBe('started');
+        });
+
+        test('status is unchanged until stop is done, even if the machine is reported stopped', async () => {
+          const getStatus = vi.mocked(ProviderConnectionShellAccessImpl).mock.calls[0][1];
+          assert(!!lifecycle.stop);
+          const stopPromise = lifecycle.stop({ log: {} as extensionApi.Logger });
+          expect(vmProviderConnection.status()).toBe('started');
+          // the shell access knows the machine is being stopped
+          expect(getStatus()).toBe('stopping');
+
+          // the machine is reported as stopped before the stop action is done
+          vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([{ ...vmDetails, Running: false }]);
+          await vi.advanceTimersByTimeAsync(10000);
+          expect(vmProviderConnection.status()).toBe('started');
+          expect(getStatus()).toBe('stopping');
+
+          resolveStop();
+          await stopPromise;
+          expect(vmProviderConnection.status()).toBe('started');
+
+          // next status check reports the real status
+          await vi.advanceTimersByTimeAsync(10000);
+          expect(vmProviderConnection.status()).toBe('stopped');
+          expect(getStatus()).toBe('stopped');
+        });
+
+        test('status is updated by the next status check when stop fails', async () => {
+          const getStatus = vi.mocked(ProviderConnectionShellAccessImpl).mock.calls[0][1];
+          assert(!!lifecycle.stop);
+          const stopPromise = lifecycle.stop({ log: {} as extensionApi.Logger });
+          expect(getStatus()).toBe('stopping');
+
+          rejectStop('an error');
+          await expect(stopPromise).rejects.toThrowError('an error');
+
+          await vi.advanceTimersByTimeAsync(10000);
+          expect(vmProviderConnection.status()).toBe('started');
+          expect(getStatus()).toBe('started');
         });
       });
     });

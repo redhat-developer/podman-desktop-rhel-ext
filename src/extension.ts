@@ -93,6 +93,19 @@ export let macadamInitializer: MacadamInitializer;
 
 export const macadamMachinesStatuses = new Map<string, extensionApi.ProviderConnectionStatus>();
 
+const stoppingMachines = new Set<string>();
+
+// incremented when a stop action ends, so that a machine list retrieved during a stop is not used to update statuses
+let stopGeneration = 0;
+
+function setMachineStatus(image: string, status: extensionApi.ProviderConnectionStatus): void {
+  if (macadamMachinesStatuses.get(image) !== status) {
+    // notify status change
+    listeners.forEach(listener => listener(image, status));
+    macadamMachinesStatuses.set(image, status);
+  }
+}
+
 export async function activate(extensionContext: extensionApi.ExtensionContext): Promise<void> {
   macadam = new macadamJSPackage.Macadam('rhel');
   macadamInitializer = new MacadamInitializer(macadam);
@@ -272,6 +285,9 @@ async function registerProviderFor(
     },
     stop: async (context, logger): Promise<void> => {
       vmProviderConnection.error = undefined;
+      // keep the status unchanged until the stop action is done: a restart started from the UI
+      // expects the next status change to happen after the stop action returns
+      stoppingMachines.add(machineInfo.image);
       try {
         await stopMachine(provider, machineInfo, context, logger);
         vmProviderConnection.error = undefined;
@@ -279,6 +295,9 @@ async function registerProviderFor(
         vmProviderConnection.error = err instanceof Error ? err.message : String(err);
         console.error(err);
         throw err;
+      } finally {
+        stoppingMachines.delete(machineInfo.image);
+        stopGeneration++;
       }
     },
     delete: async (logger): Promise<void> => {
@@ -299,7 +318,14 @@ async function registerProviderFor(
     },
   };
 
-  const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(machineInfo);
+  const providerConnectionShellAccess = new ProviderConnectionShellAccessImpl(
+    machineInfo,
+    // the terminal must not reconnect while the machine is being stopped
+    () =>
+      stoppingMachines.has(machineInfo.image)
+        ? 'stopping'
+        : (macadamMachinesStatuses.get(machineInfo.image) ?? 'unknown'),
+  );
   context.subscriptions.push(providerConnectionShellAccess);
 
   const vmProviderConnection: extensionApi.VmProviderConnection = {
@@ -325,8 +351,11 @@ async function registerProviderFor(
 }
 
 async function updateMachines(provider: extensionApi.Provider, context: extensionApi.ExtensionContext): Promise<void> {
+  const generation = stopGeneration;
   // init machines available
   const machineListOutput = await getJSONMachineList();
+  // a stop ended while retrieving the list, it may be outdated: statuses will be updated at next check
+  const outdatedList = generation !== stopGeneration;
 
   if (machineListOutput.error) {
     // TODO handle the error
@@ -347,11 +376,9 @@ async function updateMachines(provider: extensionApi.Provider, context: extensio
       status = 'starting';
     }
 
-    const previousStatus = macadamMachinesStatuses.get(machine.Image);
-    if (previousStatus !== status) {
-      // notify status change
-      listeners.forEach(listener => listener(machine.Image, status));
-      macadamMachinesStatuses.set(machine.Image, status);
+    const knownMachine = macadamMachinesStatuses.has(machine.Image);
+    if (!knownMachine || (!outdatedList && !stoppingMachines.has(machine.Image))) {
+      setMachineStatus(machine.Image, status);
     }
 
     // TODO update cpu/memory/disk usage
@@ -367,10 +394,6 @@ async function updateMachines(provider: extensionApi.Provider, context: extensio
       identityPath: machine.IdentityPath,
       vmType: machine.VMType,
     });
-
-    if (!macadamMachinesStatuses.has(machine.Image)) {
-      macadamMachinesStatuses.set(machine.Image, status);
-    }
   }
 
   // remove machine no longer there

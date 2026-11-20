@@ -26,6 +26,7 @@ import type {
   ProviderConnectionShellAccessError,
   ProviderConnectionShellAccessSession,
   ProviderConnectionShellDimensions,
+  ProviderConnectionStatus,
 } from '@podman-desktop/api';
 import { EventEmitter } from '@podman-desktop/api';
 import type { ClientChannel } from 'ssh2';
@@ -41,7 +42,10 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
   #client: Client | undefined;
   #stream: ClientChannel | undefined;
 
-  constructor(private readonly machine: MachineInfo) {
+  constructor(
+    private readonly machine: MachineInfo,
+    private readonly getStatus: () => ProviderConnectionStatus,
+  ) {
     this.#host = 'localhost';
     this.#port = machine.port;
     this.#username = machine.remoteUsername;
@@ -93,37 +97,13 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
   }
 
   open(): ProviderConnectionShellAccessSession {
-    this.#client = new Client();
-    this.#client
-      .on('ready', () => {
-        this.#client?.shell((err, stream) => {
-          if (err) {
-            console.error(err);
-            this.onErrorEmit.fire({ error: err.message });
-            return;
-          }
-          this.#stream = stream;
+    // only one session at a time
+    this.closeStream();
 
-          stream
-            .on('close', () => {
-              this.onEndEmit.fire();
-              this.closeStream();
-            })
-            .on('data', (data: string) => {
-              this.onDataEmit.fire({ data: data });
-            });
-        });
-      })
-      .on('error', err => {
-        console.error(err);
-        this.onErrorEmit.fire({ error: err.message });
-      })
-      .connect({
-        host: this.#host,
-        port: this.#port,
-        username: this.#username,
-        privateKey: fs.readFileSync(this.#privateKey),
-      });
+    // will open a new session when the machine is started
+    if (this.getStatus() === 'started') {
+      this.connect();
+    }
 
     return {
       onData: this.onData,
@@ -133,5 +113,53 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
       resize: this.resize.bind(this),
       close: this.close.bind(this),
     };
+  }
+
+  protected connect(): void {
+    const client = new Client();
+    this.#client = client;
+    client
+      .on('ready', () => {
+        client.shell((err, stream) => {
+          // the session has been closed or replaced in the meantime
+          if (this.#client !== client) {
+            stream?.close();
+            return;
+          }
+          if (err) {
+            console.error(err);
+            this.onErrorEmit.fire({ error: err.message });
+            return;
+          }
+          this.#stream = stream;
+
+          stream
+            .on('close', () => {
+              // ignore the end of a stream which has been closed or replaced
+              if (this.#stream !== stream) {
+                return;
+              }
+              this.onEndEmit.fire();
+              this.closeStream();
+            })
+            .on('data', (data: string) => {
+              this.onDataEmit.fire({ data: data });
+            });
+        });
+      })
+      .on('error', err => {
+        // ignore errors of a closed or replaced session
+        if (this.#client !== client) {
+          return;
+        }
+        console.error(err);
+        this.onErrorEmit.fire({ error: err.message });
+      })
+      .connect({
+        host: this.#host,
+        port: this.#port,
+        username: this.#username,
+        privateKey: fs.readFileSync(this.#privateKey),
+      });
   }
 }
