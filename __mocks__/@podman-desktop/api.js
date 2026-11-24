@@ -43,6 +43,7 @@ const plugin = {
   authentication: {
     getSession: vi.fn(),
   },
+  EventEmitter: vi.fn(),
 };
 module.exports = plugin;
 
