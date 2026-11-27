@@ -116,16 +116,23 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     monitorMachines(provider, extensionContext).catch((error: unknown) => {
       console.error('Error while monitoring machines', error);
     });
+    registerMacadamCli(provider, extensionContext).catch((error: unknown) => {
+      console.error('Error while registering the Macadam CLI', error);
+    });
   });
 
   if (macadam.areBinariesAvailable()) {
     await macadamInitializer.init();
   }
+}
 
+async function registerMacadamCli(
+  provider: extensionApi.Provider,
+  context: extensionApi.ExtensionContext,
+): Promise<void> {
   const macadamVersion = await macadam.getVersion();
   provider.updateVersion(macadamVersion);
 
-  // create cli tool for the cliTool page in desktop
   const macadamCli = extensionApi.cli.createCliTool({
     name: MACADAM_CLI_NAME,
     images: {
@@ -136,7 +143,7 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
     version: macadamVersion,
   });
 
-  extensionContext.subscriptions.push(macadamCli);
+  context.subscriptions.push(macadamCli);
 }
 
 async function timeout(time: number): Promise<void> {
