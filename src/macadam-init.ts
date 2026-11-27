@@ -42,6 +42,6 @@ export class MacadamInitializer {
   }
 
   onInitialized(callback: () => void): void {
-    this.#onMacadamInit.on(SIGNAL, callback);
+    this.#onMacadamInit.once(SIGNAL, callback);
   }
 }

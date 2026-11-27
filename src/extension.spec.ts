@@ -132,6 +132,57 @@ describe('activate', () => {
     expect(provider.setVmProviderConnectionFactory).toHaveBeenCalledOnce();
   });
 
+  describe('on macOS without Macadam installed', () => {
+    beforeEach(() => {
+      vi.mocked(extensionApi.env).isMac = true;
+      vi.mocked(macadamJSPackage.Macadam.prototype.areBinariesAvailable).mockReturnValue(false);
+      vi.mocked(macadamJSPackage.Macadam.prototype.getVersion).mockRejectedValue(
+        new Error('component not initialized. You must call init() before'),
+      );
+      vi.mocked(macadamJSPackage.Macadam.prototype.listVms).mockResolvedValue([]);
+    });
+
+    afterEach(() => {
+      vi.mocked(extensionApi.env).isMac = false;
+    });
+
+    test('reports the version after the first VM creation initializes Macadam', async () => {
+      await activate(extensionContext);
+
+      const macadam = macadamJSPackage.Macadam.prototype;
+      expect(macadam.ensureBinariesUpToDate).not.toHaveBeenCalled();
+      expect(macadam.init).not.toHaveBeenCalled();
+      expect(macadam.getVersion).not.toHaveBeenCalled();
+      expect(macadam.listVms).not.toHaveBeenCalled();
+      expect(provider.updateVersion).not.toHaveBeenCalled();
+      expect(extensionApi.cli.createCliTool).not.toHaveBeenCalled();
+
+      const { promise: version, resolve: resolveVersion } = Promise.withResolvers<string>();
+      vi.mocked(macadam.init).mockImplementation(async () => {
+        vi.mocked(macadam.getVersion).mockReturnValue(version);
+      });
+      const [[factory]] = vi.mocked(provider.setVmProviderConnectionFactory).mock.calls;
+      assert(!!factory.create);
+      await factory.create({
+        'rhel-vms.factory.machine.name': 'rhel',
+        'rhel-vms.factory.machine.image-path': '/path/to/rhel.qcow2',
+        'rhel-vms.factory.machine.register': false,
+      });
+
+      expect(macadam.ensureBinariesUpToDate).toHaveBeenCalledBefore(vi.mocked(macadam.init));
+      expect(macadam.listVms).toHaveBeenCalledOnce();
+      expect(macadam.createVm).toHaveBeenCalledOnce();
+      expect(macadam.getVersion).toHaveBeenCalledOnce();
+      expect(provider.updateVersion).not.toHaveBeenCalled();
+
+      resolveVersion('1.2.3');
+      await vi.waitFor(() => {
+        expect(provider.updateVersion).toHaveBeenCalledWith('1.2.3');
+        expect(extensionApi.cli.createCliTool).toHaveBeenCalledWith(expect.objectContaining({ version: '1.2.3' }));
+      });
+    });
+  });
+
   describe('create', () => {
     let create: (
       params: {

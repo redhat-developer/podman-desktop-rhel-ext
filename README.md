@@ -15,6 +15,8 @@ When initialized, the extension checks if the necessary binaries are present in 
 - no binary is present: the monitoring of the VMs is not started, and even if VMs exist, they are not listed in Settings > RHEL VMs. The binary will be installed the first time the user creates a new VM, and the monitoring of VMs will be started at this moment,
 - the binary is present and its version is a prior version than the one expected by the extension: the monitoring is started with the found binary, and if VMs exist, they are listed in Settings > RHEL VMs. The first time the user makes an action on a VM (start, stop, delete, create), the correct binary is installed.
 
+Podman Desktop shows the Macadam version for the RHEL VMs provider and lists Macadam under **Settings > CLI Tools** only after the `macadam` binary is installed and the extension has initialized it.
+
 > If this installation fails, you can run the installer manually, using the installer found at https://github.com/crc-org/macadam/releases/tag/v0.3.0. After this, you need to restart the extension which should find and use the binaries.
 
 ### On Fedora Linux/x86_64

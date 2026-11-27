@@ -35,7 +35,7 @@ test('init should initialize the macadam library', async () => {
   expect(macadam.init).toHaveBeenCalled();
 });
 
-test('onInitialized should call the callback when the macadam library is initialized', async () => {
+test('onInitialized calls the callback once even if init is called again', async () => {
   const macadam: Macadam = {
     init: vi.fn(),
   } as unknown as Macadam;
@@ -43,5 +43,6 @@ test('onInitialized should call the callback when the macadam library is initial
   const callback = vi.fn();
   initializer.onInitialized(callback);
   await initializer.init();
-  expect(callback).toHaveBeenCalled();
+  await initializer.init();
+  expect(callback).toHaveBeenCalledOnce();
 });
